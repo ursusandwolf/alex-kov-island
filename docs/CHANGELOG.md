@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.57.0] - 2026-05-19
+
+### Added
+- Introduced `SimulationType` enum to replace string-based types for domain selection (NATURE, SIMCITY), improving type-safety across the API and service layer.
+- Added `SnapshotListResponse` record DTO for the `/snapshot/history` endpoint to return structured data containing the list of filenames and their total count.
+
+### Changed
+- Refactored `SimulationService` lifecycle methods (`start`, `startFromSnapshot`) to use the new `SimulationType` enum.
+- Clarified single-user concurrent simulation constraint in Swagger `@Tag` and `SimulationService` Javadoc.
+
+### Removed
+- Removed the deprecated and unused `historyDir` field from `SimulationProperties`, fully completing the transition to JPA-backed snapshot storage.
+
 ## [1.56.0] - 2026-05-15
 
 ### Added
