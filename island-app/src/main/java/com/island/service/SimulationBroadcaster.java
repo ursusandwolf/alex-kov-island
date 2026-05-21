@@ -55,7 +55,10 @@ public class SimulationBroadcaster {
         public void tick(int tickCount) {
             if (tickCount % properties.getBroadcastInterval() != 0) return;
 
-            simulationService.getSnapshot().ifPresent(pending::set);
+            simulationService.getSnapshot().ifPresent(s -> {
+                pending.set(s);
+                log.info("Captured snapshot for tick: {}", s.getTickCount());
+            });
         }
     }
 
@@ -64,7 +67,8 @@ public class SimulationBroadcaster {
         WorldSnapshot snapshot = pending.getAndSet(null);
         if (snapshot != null) {
             messaging.convertAndSend("/topic/world-state", snapshot);
-            log.trace("Broadcasted world state from pending queue");
+            log.info("Broadcasted world state: tick={}, entities={}", 
+                     snapshot.getTickCount(), snapshot.getTotalEntityCount());
         }
     }
 

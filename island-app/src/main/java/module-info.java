@@ -27,9 +27,6 @@ module com.island.app {
     requires spring.boot.actuator;
     requires spring.boot.actuator.autoconfigure;
     requires micrometer.registry.prometheus;
-    requires spring.security.config;
-    requires spring.security.web;
-    requires spring.security.core;
     requires spring.data.jpa;
     requires spring.data.commons;
     requires jakarta.persistence;

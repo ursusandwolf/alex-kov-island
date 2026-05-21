@@ -10,7 +10,7 @@ sim:
   height: 20
   threads: 4
   tickMs: 100
-  broadcast-interval: 5
+  broadcast-interval: 1
   broadcast-rate-ms: 100
 
 management:
@@ -35,8 +35,8 @@ spring:
     activate:
       on-profile: nature
 sim:
-  width: 30
-  height: 30
+  width: 20
+  height: 20
 
 ---
 spring:

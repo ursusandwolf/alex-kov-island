@@ -17,7 +17,7 @@ The system follows a **Modular Monolith** approach with strict separation of con
 ## Database & Infrastructure
 - **Persistence**: JPA with H2 (in-memory/file). Snapshots are stored as JSON CLOBs.
 - **Observability**: Spring Boot Actuator + Micrometer + Prometheus.
-- **Security**: Basic Auth for all mutation and management endpoints.
+- **Security**: Authentication is currently disabled to streamline development and visualization.
 - **Containerization**: Multi-stage Docker build producing a lean JRE-based image.
 
 ## API Specification (v1)

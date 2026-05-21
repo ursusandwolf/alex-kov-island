@@ -9,6 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.island.engine.scheduling.SimulationStatus;
+import com.island.controller.SimulationType;
 
 import java.util.List;
 import java.util.Optional;
@@ -88,14 +89,14 @@ class SimulationControllerTest {
         mockMvc.perform(post("/api/v1/simulation/start")
                 .param("width", "2")
                 .param("height", "20")
-                .param("type", "nature"))
+                .param("type", SimulationType.NATURE.name().toLowerCase()))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void testUnknownPluginReturnsBadRequest() throws Exception {
         doThrow(new IllegalArgumentException("Unknown plugin: invalid"))
-                .when(simulationService).start("invalid", 20, 20, 100);
+                .when(simulationService).start(SimulationType.valueOf("INVALID"), 20, 20, 100);
 
         mockMvc.perform(post("/api/v1/simulation/start")
                 .param("type", "invalid")

@@ -1,5 +1,6 @@
 package com.island.service;
 
+import com.island.controller.SimulationType;
 import com.island.engine.scheduling.SimulationStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,7 @@ class SimulationServiceIntegrationTest {
         simulationService.stop();
         assertEquals(SimulationStatus.IDLE, simulationService.getStatus());
 
-        simulationService.start("nature", 20, 20, 100);
+        simulationService.start(SimulationType.NATURE, 20, 20, 100);
         await().atMost(2, SECONDS).until(() -> simulationService.getStatus() == SimulationStatus.RUNNING);
     }
 }

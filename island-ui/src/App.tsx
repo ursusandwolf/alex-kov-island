@@ -1,22 +1,21 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSimulationStore } from './store/useSimulationStore';
+import { useSimulationSocket } from './hooks/useSimulationSocket';
 import WorldCanvas from './components/WorldCanvas';
-import { NodeSnapshot } from './types/simulation';
 import { SimulationControls } from './components/simulation/SimulationControls';
 import { SimulationMetrics } from './components/simulation/SimulationMetrics';
 import { SnapshotHistoryPanel } from './components/simulation/SnapshotHistoryPanel';
 
 function App() {
-  const { status, snapshot, connected, error, connect, disconnect, updateStatus, fetchHistory } = useSimulationStore();
+  const { status, snapshot, error, updateStatus, fetchHistory } = useSimulationStore();
+  const { connected } = useSimulationSocket();
   const [selectedCoords, setSelectedCoords] = useState<string | null>(null);
   const [config, setConfig] = useState({ width: 20, height: 20, tickMs: 100 });
 
   useEffect(() => {
-    connect();
     updateStatus();
     fetchHistory();
-    return () => disconnect();
-  }, [connect, disconnect, updateStatus, fetchHistory]);
+  }, [updateStatus, fetchHistory]);
 
   const selectedNode = useMemo(() => {
     if (!snapshot || !selectedCoords) return null;
@@ -109,13 +108,6 @@ const panelStyle: React.CSSProperties = {
 const LegendItem = ({ color, label }: { color: string, label: string }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
     <div style={{ width: '16px', height: '16px', borderRadius: '3px', background: color }} />
-    <span style={{ fontSize: '0.9rem' }}>{label}</span>
-  </div>
-);
-
-export default App;
-
-'3px', background: color }} />
     <span style={{ fontSize: '0.9rem' }}>{label}</span>
   </div>
 );

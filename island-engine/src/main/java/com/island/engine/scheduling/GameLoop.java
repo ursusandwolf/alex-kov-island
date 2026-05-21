@@ -176,6 +176,7 @@ public class GameLoop<T extends Mortal> {
      * </p>
      */
     public void runTick() {
+        log.info("Simulation tick: {}", tickCount);
         tickCount++;
         
         // Drain pending tasks into the main list

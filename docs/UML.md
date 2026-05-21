@@ -216,8 +216,10 @@ graph LR
         RD[React Dashboard]
         RC[HTML5 Canvas]
         ZS[Zustand Store]
+        SW[useSimulationSocket Hook]
         RD --- ZS
         RD --- RC
+        RD --- SW
     end
 
     subgraph App_Layer [island-app (Spring Boot)]
@@ -236,7 +238,7 @@ graph LR
     end
 
     RD -- REST API --> SC
-    ZS -- STOMP --> SB
+    SW -- STOMP --> SB
     SC -- Lifecycle --> SS
     SS -- Registry --> NP
     SS -- Manages --> SE
@@ -244,6 +246,7 @@ graph LR
     CX -- Provides --> GL
     GL -- Registers --> SB
     SB -- Serializes --> WS[WorldSnapshot]
-    WS -- Broadcast --> ZS
+    WS -- Broadcast --> SW
+    SW -- Updates --> ZS
     SC -.-> GE
 ```

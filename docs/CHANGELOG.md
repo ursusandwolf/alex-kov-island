@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.58.0] - 2026-05-21
+
+### Added
+- Case-insensitive `SimulationType` resolution via `@JsonCreator` and custom `Converter` in `WebConfig`, allowing frontend to use lowercase domain names.
+- Debug logging in `SimulationBroadcaster` and `GameLoop` for better visibility of real-time activity.
+
+### Changed
+- **Frontend Refactoring**: Migrated STOMP logic to a dedicated `useSimulationSocket` hook and decoupled it from the global Zustand store for better lifecycle management.
+- Centralized all simulation API calls in `simulationApi.ts`.
+- Optimized default simulation size to 20x20 and increased broadcast frequency to 1 tick/update.
+
+### Fixed
+- **Critical Deadlock**: Resolved a non-recursive locking issue in `Cell.java` where `StampedLock` caused threads to hang during entity movement. Refactored `forEach*` methods to release locks before executing domain logic.
+- Resolved "Internal server error" during simulation start caused by enum case mismatch.
+- Fixed frontend runtime crash in `SnapshotHistoryPanel` by correctly handling the structured `SnapshotListResponse`.
+
+### Removed
+- **Spring Security**: Completely removed `spring-boot-starter-security` and all related configurations to eliminate persistent 403 Forbidden errors and the "Sign In" modal.
+
 ## [1.57.0] - 2026-05-19
 
 ### Added

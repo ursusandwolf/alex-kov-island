@@ -115,12 +115,15 @@ public class Cell implements SimulationNode<Organism> {
 
     @Override
     public void forEachEntity(Consumer<Organism> action) {
+        List<Organism> entities;
         long stamp = lock.readLock();
         try {
-            container.forEachEntity(action);
+            entities = new ArrayList<>(getEntityCountInternal());
+            container.forEachEntity(entities::add);
         } finally {
             lock.unlockRead(stamp);
         }
+        entities.forEach(action);
     }
 
     @Override
@@ -274,42 +277,66 @@ public class Cell implements SimulationNode<Organism> {
     }
 
     public void forEachAnimal(Consumer<Animal> action) {
+        List<Animal> animals;
         long stamp = lock.readLock();
         try {
-            container.forEachAnimal(action);
+            animals = container.getAllAnimals();
         } finally {
             lock.unlockRead(stamp);
         }
+        animals.forEach(action);
     }
 
     public void forEachAnimalSampled(SamplingContext context, Consumer<Animal> action) {
+        List<Animal> animals;
         long stamp = lock.readLock();
         try {
-            container.forEachAnimalSampled(context, action);
+            animals = container.getAllAnimals();
         } finally {
             lock.unlockRead(stamp);
+        }
+
+        if (animals.size() <= context.getLimit()) {
+            animals.forEach(action);
+        } else {
+            SamplingUtils.forEachSampled(animals, context, action);
         }
     }
 
     public void forEachPredator(Consumer<Animal> action) {
+        List<Animal> predators;
         long stamp = lock.readLock();
         try {
+            predators = new ArrayList<>();
             container.forEachAnimal(a -> {
                 if (a.isAnimalPredator()) {
-                    action.accept(a);
+                    predators.add(a);
                 }
             });
         } finally {
             lock.unlockRead(stamp);
         }
+        predators.forEach(action);
     }
 
     public void forEachHerbivoreSampled(int limit, RandomProvider random, Consumer<Animal> action) {
+        List<Animal> herbivores;
         long stamp = lock.readLock();
         try {
-            container.forEachHerbivoreSampled(limit, random, action);
+            herbivores = new ArrayList<>();
+            container.forEachAnimal(a -> {
+                if (!a.isAnimalPredator()) {
+                    herbivores.add(a);
+                }
+            });
         } finally {
             lock.unlockRead(stamp);
+        }
+
+        if (herbivores.size() <= limit) {
+            herbivores.forEach(action);
+        } else {
+            SamplingUtils.forEachSampled(herbivores, limit, random, action);
         }
     }
 
