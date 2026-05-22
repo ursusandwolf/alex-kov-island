@@ -39,7 +39,6 @@ dist/
 *.tmp
 *.temp
 
-# Scripts
-scripts/
+# island-ui deps
 island-ui/node_modules/
 island-ui/dist/
