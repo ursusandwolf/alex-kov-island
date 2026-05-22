@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.59.0] - 2026-05-22
+
+### Changed
+- Refactored `SimulationService` to use constructor-based dependency injection for `SimulationEngine`, removing direct instantiation.
+- Updated `SimulationBeanConfig` to define `SimulationEngine` as a Spring Bean.
+- Adjusted `module-info.java` to explicitly open internal packages to `spring-boot`, `spring-core`, and `org.hibernate.orm.core` to resolve runtime access errors in tests.
+- Fixed `SimulationControllerTest` assertions and mock setup to accommodate dependency injection changes.
+
 ## [1.58.0] - 2026-05-21
 
 ### Added

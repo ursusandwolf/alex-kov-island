@@ -32,14 +32,16 @@ public class SimulationService {
     private final ApplicationEventPublisher eventPublisher;
     private final Map<String, NamedSimulationPlugin<?>> plugins;
     private final SimulationProperties properties;
+    private final SimulationEngine simulationEngine;
 
     private volatile SimulationContext<?> context;
 
-    public SimulationService(ApplicationEventPublisher eventPublisher, List<NamedSimulationPlugin<?>> pluginList, SimulationProperties properties) {
+    public SimulationService(ApplicationEventPublisher eventPublisher, List<NamedSimulationPlugin<?>> pluginList, SimulationProperties properties, SimulationEngine simulationEngine) {
         this.eventPublisher = eventPublisher;
         this.properties = properties;
         this.plugins = pluginList.stream()
                 .collect(Collectors.toMap(p -> p.getPluginName().toLowerCase(), p -> p));
+        this.simulationEngine = simulationEngine;
         log.info("Registered plugins: {}", plugins.keySet());
     }
 
@@ -91,7 +93,7 @@ public class SimulationService {
         // Create a configured instance of the plugin
         SimulationPlugin<?> plugin = factory.withConfiguration(width, height, initialSnapshot);
 
-        this.context = new SimulationEngine().build(plugin, config);
+        this.context = this.simulationEngine.build(plugin, config);
         
         eventPublisher.publishEvent(new SimulationStartedEvent(this.context));
         

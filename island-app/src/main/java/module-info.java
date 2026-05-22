@@ -32,11 +32,10 @@ module com.island.app {
     requires jakarta.persistence;
     requires spring.tx;
 
-    opens com.island to spring.core, spring.beans, spring.context;
+    opens com.island;
     opens com.island.config;
-    opens com.island.persistence to spring.core, spring.beans, spring.context, org.hibernate.orm.core, spring.data.jpa;
-    opens com.island.service to spring.core, spring.beans, spring.context, spring.messaging, com.fasterxml.jackson.databind;
-    opens com.island.controller to spring.core, spring.beans, spring.context, spring.web, spring.messaging, com.fasterxml.jackson.databind;
-    
+    opens com.island.controller;
+    opens com.island.persistence;
+    opens com.island.service;
     uses com.island.engine.core.SimulationPlugin;
 }
