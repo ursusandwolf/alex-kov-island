@@ -10,7 +10,7 @@ To provide a high-performance, extensible engine for simulating complex ecosyste
 - **Engine**: Stable, Zero-GC hot path, now with non-blocking cell traversal.
 - **Domains**: Nature and SimCity are integrated and performant at 20x20 scale.
 - **Backend**: Spring Boot 3.2.5 (Security disabled) with JPA/H2 storage.
-- **Frontend**: Vite + React 18 dashboard with centralized API and hook-based WebSocket management.
+- **Frontend**: Vite + React 18 dashboard. Refactored architecture using TanStack Query for server state management and slimmed-down Zustand stores for UI local state.
 
 ## Technical Entry Point
 For detailed architectural patterns, API specs, and implementation standards, refer to:
