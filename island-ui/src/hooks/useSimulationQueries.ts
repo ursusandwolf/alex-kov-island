@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { simulationApi } from '../api/simulationApi';
+import { mapSnapshotToDomain } from '../repositories/simulationRepository';
 
 export const useSimulationStatus = () => {
   return useQuery({
@@ -13,6 +14,14 @@ export const useSimulationHistory = () => {
   return useQuery({
     queryKey: ['simulation', 'history'],
     queryFn: simulationApi.getHistory,
+  });
+};
+
+export const useHistoricalSnapshot = (filename: string) => {
+  return useQuery({
+    queryKey: ['simulation', 'snapshot', filename],
+    queryFn: () => simulationApi.getHistoricalSnapshot(filename).then(mapSnapshotToDomain),
+    enabled: !!filename,
   });
 };
 
