@@ -45,12 +45,9 @@ public class SimulationService {
         log.info("Registered plugins: {}", plugins.keySet());
     }
 
-    /**
-     * Starts the simulation automatically with default configuration.
-     */
     @EventListener(ApplicationStartedEvent.class)
     public void startDefault() {
-        start(SimulationType.valueOf(properties.getDefaultPlugin().toUpperCase()), properties.getWidth(), properties.getHeight(), properties.getTickMs());
+        start(properties.getDefaultPluginType(), properties.getWidth(), properties.getHeight(), properties.getTickMs());
     }
 
     /**

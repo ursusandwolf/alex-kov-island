@@ -8,6 +8,7 @@ import com.island.engine.model.Mortal;
 import com.island.engine.model.WorldSnapshot;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -67,6 +68,6 @@ class SimulationWorldTest {
 
     // Helper to avoid full mockito dependency if possible, but it's already in dependencies
     private <T> T mock(Class<T> type) {
-        return org.mockito.Mockito.mock(type);
+        return Mockito.mock(type);
     }
 }

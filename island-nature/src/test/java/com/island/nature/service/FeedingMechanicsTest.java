@@ -1,6 +1,7 @@
 package com.island.nature.service;
 
 
+import com.island.engine.ecs.ComponentRegistry;
 import com.island.nature.config.Configuration;
 import com.island.nature.model.Cell;
 import java.util.Collections;
@@ -56,7 +57,7 @@ class FeedingMechanicsTest {
     void setUp() {
         registry = new SpeciesLoader(config).load();
         matrix = InteractionMatrix.buildFrom(registry);
-        com.island.engine.ecs.ComponentRegistry componentRegistry = new com.island.engine.ecs.ComponentRegistry();
+        ComponentRegistry componentRegistry = new ComponentRegistry();
         animalFactory = new AnimalFactory(registry, random, componentRegistry);
         HuntingStrategy strategy = new DefaultHuntingStrategy(config, matrix);
         

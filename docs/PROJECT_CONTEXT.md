@@ -1,7 +1,7 @@
 # Project Context: Island Ecosystem Simulator
 
-## Status: Dashboard Operational (v1.58.0)
-The dashboard is now fully functional with real-time updates. Critical deadlocks have been resolved, and the authentication layer has been removed to facilitate local development and unrestricted visualization.
+## Status: Dashboard Operational (v1.60.0)
+The dashboard is fully functional. Recent updates focused on architectural hardening, FQN removal, and type-safe configuration.
 
 ## Project Goal
 To provide a high-performance, extensible engine for simulating complex ecosystems and urban environments, leveraging modern Java features and ECS architecture.

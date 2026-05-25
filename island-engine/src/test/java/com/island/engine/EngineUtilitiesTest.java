@@ -2,6 +2,7 @@ package com.island.engine;
 
 import com.island.engine.core.SimulationConfig;
 import com.island.engine.core.ExecutionMode;
+import com.island.util.common.DefaultRandomProvider;
 import com.island.util.common.RandomUtils;
 import com.island.util.math.GridUtils;
 import com.island.util.common.ViewUtils;
@@ -37,7 +38,7 @@ class EngineUtilitiesTest {
     @Test
     @DisplayName("RandomUtils: All methods")
     void random_utils_full_test() {
-        com.island.util.common.DefaultRandomProvider random = new com.island.util.common.DefaultRandomProvider(42L);
+        DefaultRandomProvider random = new DefaultRandomProvider(42L);
         RandomUtils.setProvider(random);
         
         assertTrue(RandomUtils.nextInt(10) < 10);

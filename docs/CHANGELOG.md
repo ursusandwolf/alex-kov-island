@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.60.0] - 2026-05-25
+
+### Added
+- Type-safe `getDefaultPluginType()` in `SimulationProperties` to improve plugin initialization.
+
+### Fixed
+- **Architectural Cleanup**: Removed multiple Fully Qualified Names (FQNs) in code bodies across `island-engine`, `island-nature`, and `island-simcity` modules, adhering to style guidelines in `GEMINI.md`.
+- **Configuration**: Removed unnecessary `volatile` modifiers in `SimulationProperties` where standard Spring `ConfigurationProperties` behavior is sufficient.
+
+### Changed
+- Refactored `SimulationService` to use new type-safe property accessors.
+- Verified that `SnapshotHistoryService` successfully transitioned to JPA-based persistence, rendering `historyDir` property obsolete.
+
 ## [1.59.0] - 2026-05-22
 
 ### Changed

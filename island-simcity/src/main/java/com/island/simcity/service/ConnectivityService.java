@@ -10,6 +10,7 @@ import java.util.ArrayDeque;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Queue;
+import java.util.function.BiConsumer;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -116,7 +117,7 @@ public class ConnectivityService extends AbstractSimCityService {
         return conductive[0];
     }
 
-    private void propagateNetwork(BuildingComponent.Type type, java.util.function.BiConsumer<CityTile, Boolean> setter) {
+    private void propagateNetwork(BuildingComponent.Type type, BiConsumer<CityTile, Boolean> setter) {
         queue.clear();
         visited.clear();
         

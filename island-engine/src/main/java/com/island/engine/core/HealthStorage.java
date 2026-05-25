@@ -1,5 +1,7 @@
 package com.island.engine.core;
 
+import com.island.engine.internal.HealthSoAStore;
+
 /**
  * Public API for high-performance health data storage.
  */
@@ -14,6 +16,6 @@ public interface HealthStorage {
     long addEnergy(int entityId, long delta);
 
     static HealthStorage create(int initialCapacity) {
-        return new com.island.engine.internal.HealthSoAStore(initialCapacity);
+        return new HealthSoAStore(initialCapacity);
     }
 }

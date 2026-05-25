@@ -1,4 +1,8 @@
 package com.island.nature.service;
+import com.island.engine.core.AgeStorage;
+import com.island.engine.core.EntityIdProvider;
+import com.island.engine.core.HealthStorage;
+import com.island.engine.core.MovementStorage;
 import com.island.engine.event.EventBus;
 
 import com.island.nature.config.Configuration;
@@ -44,10 +48,10 @@ class AnimalHealthSystemTest {
         ComponentRegistry componentRegistry = new ComponentRegistry();
         StatisticsService stats = new StatisticsService(config);
 
-        com.island.engine.core.EntityIdProvider idProvider = com.island.engine.core.EntityIdProvider.create();
-        com.island.engine.core.HealthStorage healthStorage = com.island.engine.core.HealthStorage.create(100);
-        com.island.engine.core.AgeStorage ageStorage = com.island.engine.core.AgeStorage.create(100);
-        com.island.engine.core.MovementStorage movementStorage = com.island.engine.core.MovementStorage.create(100);
+        EntityIdProvider idProvider = EntityIdProvider.create();
+        HealthStorage healthStorage = HealthStorage.create(100);
+        AgeStorage ageStorage = AgeStorage.create(100);
+        MovementStorage movementStorage = MovementStorage.create(100);
 
         AnimalFactory animalFactory = new AnimalFactory(registry, random, componentRegistry, idProvider, healthStorage, ageStorage, movementStorage);
 

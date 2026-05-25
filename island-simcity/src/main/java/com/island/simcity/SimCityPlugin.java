@@ -18,12 +18,15 @@ import com.island.simcity.service.PollutionService;
 import com.island.simcity.service.DesirabilityService;
 import com.island.simcity.service.SocialService;
 import com.island.simcity.service.ZoningService;
+import com.island.simcity.service.SocialEffectProvider;
 import com.island.engine.core.NamedSimulationPlugin;
 import com.island.engine.core.SimulationPlugin;
 import com.island.engine.core.SimulationWorld;
 import com.island.engine.scheduling.GameLoop;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,26 +39,26 @@ public class SimCityPlugin implements NamedSimulationPlugin<SimEntity> {
     private final int height;
     private final ComponentRegistry componentRegistry = new ComponentRegistry();
     private final WorldSnapshot initialSnapshot;
-    private final List<com.island.simcity.service.SocialEffectProvider> socialEffectProviders;
+    private final List<SocialEffectProvider> socialEffectProviders;
 
     public SimCityPlugin() {
-        this(20, 20, null, new java.util.ArrayList<>());
+        this(20, 20, null, new ArrayList<>());
     }
 
     public SimCityPlugin(int width, int height) {
-        this(width, height, null, new java.util.ArrayList<>());
+        this(width, height, null, new ArrayList<>());
     }
 
-    @org.springframework.beans.factory.annotation.Autowired
-    public SimCityPlugin(List<com.island.simcity.service.SocialEffectProvider> socialEffectProviders) {
+    @Autowired
+    public SimCityPlugin(List<SocialEffectProvider> socialEffectProviders) {
         this(20, 20, null, socialEffectProviders);
     }
 
-    public SimCityPlugin(int width, int height, WorldSnapshot initialSnapshot, List<com.island.simcity.service.SocialEffectProvider> socialEffectProviders) {
+    public SimCityPlugin(int width, int height, WorldSnapshot initialSnapshot, List<SocialEffectProvider> socialEffectProviders) {
         this.width = initialSnapshot != null ? initialSnapshot.getWidth() : width;
         this.height = initialSnapshot != null ? initialSnapshot.getHeight() : height;
         this.initialSnapshot = initialSnapshot;
-        this.socialEffectProviders = socialEffectProviders != null ? socialEffectProviders : new java.util.ArrayList<>();
+        this.socialEffectProviders = socialEffectProviders != null ? socialEffectProviders : new ArrayList<>();
         // Register components for stable indices
         componentRegistry.getBitSet(List.of(
                 PopulationComponent.class,

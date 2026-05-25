@@ -1,6 +1,7 @@
 package com.island.nature.config;
 
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Properties;
 import lombok.Getter;
@@ -141,7 +142,7 @@ public class Configuration {
         }
 
         // Use reflection to load all fields that have a matching property
-        for (java.lang.reflect.Field field : Configuration.class.getDeclaredFields()) {
+        for (Field field : Configuration.class.getDeclaredFields()) {
             if (Modifier.isFinal(field.getModifiers())) {
                 continue;
             }

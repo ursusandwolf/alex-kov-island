@@ -16,20 +16,23 @@ import java.util.concurrent.locks.StampedLock;
 @InternalEngine
 public final class MovementSoAStore implements MovementStorage {
     private volatile AtomicIntegerArray speeds;
+    private volatile AtomicIntegerArray ranges;
     private volatile int capacity;
     private final StampedLock lock = new StampedLock();
 
     public MovementSoAStore(int initialCapacity) {
         this.capacity = initialCapacity;
         this.speeds = new AtomicIntegerArray(initialCapacity);
+        this.ranges = new AtomicIntegerArray(initialCapacity);
     }
 
     @Override
-    public void set(int entityId, int speed) {
+    public void set(int entityId, int speed, int range) {
         long stamp = lock.readLock();
         try {
             if (entityId < capacity) {
                 this.speeds.set(entityId, speed);
+                this.ranges.set(entityId, range);
                 return;
             }
         } finally {
@@ -41,6 +44,7 @@ public final class MovementSoAStore implements MovementStorage {
         try {
             ensureCapacityInternal(entityId);
             this.speeds.set(entityId, speed);
+            this.ranges.set(entityId, range);
         } finally {
             lock.unlockWrite(stamp);
         }
@@ -67,18 +71,36 @@ public final class MovementSoAStore implements MovementStorage {
     }
 
     @Override
-    public void setSpeed(int entityId, int speed) {
-        set(entityId, speed);
+    public int getRange(int entityId) {
+        long stamp = lock.tryOptimisticRead();
+        int cap = capacity;
+        AtomicIntegerArray arr = ranges;
+        int range = (entityId < cap) ? arr.get(entityId) : 0;
+        
+        if (!lock.validate(stamp)) {
+            stamp = lock.readLock();
+            try {
+                cap = capacity;
+                arr = ranges;
+                range = (entityId < cap) ? arr.get(entityId) : 0;
+            } finally {
+                lock.unlockRead(stamp);
+            }
+        }
+        return range;
     }
 
     private void ensureCapacityInternal(int entityId) {
         if (entityId >= capacity) {
             int newCapacity = Math.max(entityId + 1, capacity * 2);
             AtomicIntegerArray newSpeeds = new AtomicIntegerArray(newCapacity);
+            AtomicIntegerArray newRanges = new AtomicIntegerArray(newCapacity);
             for (int i = 0; i < capacity; i++) {
                 newSpeeds.set(i, speeds.get(i));
+                newRanges.set(i, ranges.get(i));
             }
             this.speeds = newSpeeds;
+            this.ranges = newRanges;
             this.capacity = newCapacity;
         }
     }

@@ -1,6 +1,7 @@
 package com.island.engine.event;
 
 
+import java.util.function.Consumer;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,7 +34,7 @@ class EventBusTest {
     void shouldUnsubscribeCorrectly() {
         EventBus bus = EventBus.create();
         AtomicInteger count = new AtomicInteger(0);
-        java.util.function.Consumer<String> subscriber = s -> count.incrementAndGet();
+        Consumer<String> subscriber = s -> count.incrementAndGet();
         
         bus.subscribe(String.class, subscriber);
         bus.publish("One");

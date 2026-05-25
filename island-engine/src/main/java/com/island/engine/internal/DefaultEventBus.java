@@ -2,6 +2,8 @@ package com.island.engine.internal;
 
 import com.island.engine.core.InternalEngine;
 import com.island.engine.event.EventBus;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +56,7 @@ public final class DefaultEventBus implements EventBus {
 
     private Set<Class<?>> getTypeHierarchy(Class<?> type) {
         Set<Class<?>> hierarchy = new HashSet<>();
-        java.util.Deque<Class<?>> queue = new java.util.ArrayDeque<>();
+        Deque<Class<?>> queue = new ArrayDeque<>();
         queue.add(type);
         
         while (!queue.isEmpty()) {

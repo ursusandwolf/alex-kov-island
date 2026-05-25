@@ -3,6 +3,7 @@ package com.island.util.sampling;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.RandomAccess;
 import java.util.function.Consumer;
 import com.island.util.common.RandomProvider;
 
@@ -46,7 +47,7 @@ public class SamplingUtils {
         int step = (size > limit) ? (size / limit + 1) : 1;
         int startOffset = (size > limit) ? random.nextInt(step) : 0;
 
-        if (collection instanceof List<T> list && list instanceof java.util.RandomAccess) {
+        if (collection instanceof List<T> list && list instanceof RandomAccess) {
             int processedCount = 0;
             for (int i = startOffset; i < size && processedCount < limit; i += step) {
                 action.accept(list.get(i));
