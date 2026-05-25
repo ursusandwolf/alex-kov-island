@@ -9,6 +9,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.lang.reflect.Field;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.awaitility.Awaitility.await;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -24,8 +26,10 @@ class SimulationServiceIntegrationTest {
     private SimpMessagingTemplate messagingTemplate;
 
     @Test
-    void shouldManageSimulationLifecycle() {
+    void shouldManageSimulationLifecycle() throws Exception {
         await().atMost(2, SECONDS).until(() -> simulationService.getStatus() == SimulationStatus.RUNNING);
+        assertNotNull(readContextField(), "default startup should create a simulation context");
+
         simulationService.pause();
         assertEquals(SimulationStatus.PAUSED, simulationService.getStatus());
         
@@ -34,8 +38,16 @@ class SimulationServiceIntegrationTest {
         
         simulationService.stop();
         assertEquals(SimulationStatus.IDLE, simulationService.getStatus());
+        assertNull(readContextField(), "manual stop should release the active simulation context");
 
         simulationService.start(SimulationType.NATURE, 20, 20, 100);
         await().atMost(2, SECONDS).until(() -> simulationService.getStatus() == SimulationStatus.RUNNING);
+        assertNotNull(readContextField(), "simulation should be restartable after a full stop");
+    }
+
+    private Object readContextField() throws Exception {
+        Field contextField = SimulationService.class.getDeclaredField("context");
+        contextField.setAccessible(true);
+        return contextField.get(simulationService);
     }
 }

@@ -84,6 +84,15 @@ mvn test
 mvn test -Dtest=ReproducibilityTest,StabilityIntegrationTest
 ```
 
+### Multithread Profiling
+Use the dedicated guide and CSV collector before reviewing concurrency changes:
+
+```bash
+bash scripts/profile-multithreading.sh http://127.0.0.1:8080 30 /tmp/profile_threads_4.csv
+```
+
+See [docs/testing/MULTITHREAD_PROFILING.md](docs/testing/MULTITHREAD_PROFILING.md) for the full `threads=1/2/4/8` sweep workflow.
+
 ### Static Analysis
 ```bash
 # Checkstyle (Google Style Guide)

@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BooleanSupplier;
 import lombok.Getter;
@@ -151,9 +152,6 @@ public class GameLoop<T extends Mortal> {
     public void stop() {
         if (running.compareAndSet(true, false)) {
             log.info("Stopping GameLoop...");
-            if (loopTask != null) {
-                loopTask.cancel(true);
-            }
         }
     }
 
@@ -162,6 +160,23 @@ public class GameLoop<T extends Mortal> {
      */
     public boolean isRunning() {
         return running.get();
+    }
+
+    public boolean awaitStop(long timeout, TimeUnit unit) throws InterruptedException {
+        Future<?> currentLoopTask = loopTask;
+        if (currentLoopTask == null) {
+            return true;
+        }
+        try {
+            currentLoopTask.get(timeout, unit);
+            return true;
+        } catch (TimeoutException e) {
+            return false;
+        } catch (java.util.concurrent.ExecutionException e) {
+            return true;
+        } catch (java.util.concurrent.CancellationException e) {
+            return true;
+        }
     }
 
     /**
@@ -176,7 +191,7 @@ public class GameLoop<T extends Mortal> {
      * </p>
      */
     public void runTick() {
-        log.info("Simulation tick: {}", tickCount);
+        log.trace("Simulation tick: {}", tickCount);
         tickCount++;
         
         // Drain pending tasks into the main list

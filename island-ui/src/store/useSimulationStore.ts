@@ -7,9 +7,12 @@ interface SimulationState {
   snapshot: WorldSnapshot | null;
   error: string | null;
   history: string[];
+  viewingHistory: boolean;
   setSnapshot: (snapshot: WorldSnapshot | null) => void;
+  setLiveSnapshot: (snapshot: WorldSnapshot | null) => void;
   setStatus: (status: SimulationStatus) => void;
   setError: (error: string | null) => void;
+  exitHistoryView: () => void;
   start: (type: 'nature' | 'simcity', width?: number, height?: number, tickMs?: number) => Promise<void>;
   startFromSnapshot: (filename: string, type: 'nature' | 'simcity', tickMs?: number) => Promise<void>;
   pause: () => Promise<void>;
@@ -26,9 +29,12 @@ export const useSimulationStore = create<SimulationState>((set) => ({
   snapshot: null,
   error: null,
   history: [],
+  viewingHistory: false,
   setSnapshot: (snapshot) => set({ snapshot }),
+  setLiveSnapshot: (snapshot) => set((state) => state.viewingHistory ? state : { snapshot }),
   setStatus: (status) => set({ status }),
   setError: (error) => set({ error }),
+  exitHistoryView: () => set({ viewingHistory: false }),
 
   updateStatus: async () => {
     try {
@@ -45,6 +51,7 @@ export const useSimulationStore = create<SimulationState>((set) => ({
       if (!response.ok) {
         throw new Error(await response.text() || response.statusText);
       }
+      set({ viewingHistory: false, error: null });
       await useSimulationStore.getState().updateStatus();
     } catch (err) {
       set({ error: err instanceof Error ? err.message : String(err) });
@@ -57,6 +64,7 @@ export const useSimulationStore = create<SimulationState>((set) => ({
       if (!response.ok) {
         throw new Error(await response.text() || response.statusText);
       }
+      set({ viewingHistory: false, error: null });
       await useSimulationStore.getState().updateStatus();
     } catch (err) {
       set({ error: err instanceof Error ? err.message : String(err) });
@@ -94,7 +102,7 @@ export const useSimulationStore = create<SimulationState>((set) => ({
         throw new Error(await response.text() || response.statusText);
       }
       await useSimulationStore.getState().updateStatus();
-      set({ snapshot: null });
+      set({ snapshot: null, viewingHistory: false, error: null });
     } catch (err) {
       set({ error: err instanceof Error ? err.message : String(err) });
     }
@@ -124,7 +132,7 @@ export const useSimulationStore = create<SimulationState>((set) => ({
   loadHistoricalSnapshot: async (filename) => {
     try {
       const snapshot = await simulationApi.getHistoricalSnapshot(filename);
-      set({ snapshot, error: null });
+      set({ snapshot, error: null, viewingHistory: true });
     } catch (err) {
       set({ error: err instanceof Error ? err.message : String(err) });
     }

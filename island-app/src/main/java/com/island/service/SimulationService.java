@@ -102,10 +102,11 @@ public class SimulationService {
     /**
      * Stops the simulation game loop.
      */
-    public void stop() {
+    public synchronized void stop() {
         SimulationContext<?> current = this.context;
         if (current != null) {
-            current.gameLoop().stop();
+            this.context = null;
+            current.close();
             log.info("Simulation stopped");
         }
     }

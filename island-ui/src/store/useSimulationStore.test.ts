@@ -7,7 +7,7 @@ globalThis.fetch = vi.fn();
 beforeEach(() => {
   vi.resetAllMocks();
   // Reset store to initial state
-  useSimulationStore.setState({ status: 'IDLE', error: null, history: [], snapshot: null });
+  useSimulationStore.setState({ status: 'IDLE', error: null, history: [], snapshot: null, viewingHistory: false });
 });
 
 test('updateStatus success updates the status', async () => {
@@ -41,4 +41,41 @@ test('pause success updates status', async () => {
   expect(globalThis.fetch).toHaveBeenCalledWith('/api/v1/simulation/pause', { method: 'POST' });
   expect(useSimulationStore.getState().status).toBe('PAUSED');
   expect(useSimulationStore.getState().error).toBeNull();
+});
+
+test('live snapshots do not overwrite history view until user exits it', async () => {
+  useSimulationStore.setState({
+    snapshot: {
+      tickCount: 10,
+      width: 1,
+      height: 1,
+      totalEntityCount: 5,
+      metrics: {},
+      nodes: [],
+    },
+    viewingHistory: true,
+  });
+
+  useSimulationStore.getState().setLiveSnapshot({
+    tickCount: 11,
+    width: 1,
+    height: 1,
+    totalEntityCount: 6,
+    metrics: {},
+    nodes: [],
+  });
+
+  expect(useSimulationStore.getState().snapshot?.tickCount).toBe(10);
+
+  useSimulationStore.getState().exitHistoryView();
+  useSimulationStore.getState().setLiveSnapshot({
+    tickCount: 12,
+    width: 1,
+    height: 1,
+    totalEntityCount: 7,
+    metrics: {},
+    nodes: [],
+  });
+
+  expect(useSimulationStore.getState().snapshot?.tickCount).toBe(12);
 });

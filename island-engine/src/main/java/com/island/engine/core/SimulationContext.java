@@ -39,9 +39,10 @@ public record SimulationContext<T extends Mortal>(
     @Override
     public void close() {
         gameLoop.stop();
-        executor.shutdown();
         try {
-            if (!executor.awaitTermination(2, TimeUnit.SECONDS)) {
+            boolean stopped = gameLoop.awaitStop(2, TimeUnit.SECONDS);
+            executor.shutdown();
+            if (!stopped || !executor.awaitTermination(2, TimeUnit.SECONDS)) {
                 executor.shutdownNow();
             }
         } catch (InterruptedException e) {

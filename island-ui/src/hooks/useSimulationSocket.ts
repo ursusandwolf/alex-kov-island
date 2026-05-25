@@ -6,7 +6,7 @@ import { useSimulationStore } from '../store/useSimulationStore';
 
 export function useSimulationSocket() {
   const [connected, setConnected] = useState(false);
-  const setSnapshot = useSimulationStore(state => state.setSnapshot);
+  const setLiveSnapshot = useSimulationStore(state => state.setLiveSnapshot);
 
   useEffect(() => {
     const client = new Client({
@@ -21,7 +21,7 @@ export function useSimulationSocket() {
       setConnected(true);
       client.subscribe('/topic/world-state', (message) => {
         const snapshot: WorldSnapshot = JSON.parse(message.body);
-        setSnapshot(snapshot);
+        setLiveSnapshot(snapshot);
       });
     };
 
@@ -32,7 +32,7 @@ export function useSimulationSocket() {
     return () => {
       client.deactivate();
     };
-  }, [setSnapshot]);
+  }, [setLiveSnapshot]);
 
   return { connected };
 }

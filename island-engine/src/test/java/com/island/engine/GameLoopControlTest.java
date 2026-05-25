@@ -1,6 +1,7 @@
 package com.island.engine;
 
 import com.island.engine.core.SimulationWorld;
+import com.island.engine.internal.ParallelDispatcher;
 import com.island.engine.internal.PhaseScheduler;
 import com.island.engine.scheduling.GameLoop;
 import com.island.engine.scheduling.SimulationStatus;
@@ -20,7 +21,8 @@ class GameLoopControlTest {
     @DisplayName("GameLoop: Pause and Resume")
     void pause_resume_test() throws InterruptedException {
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        PhaseScheduler scheduler = mock(PhaseScheduler.class);
+        ParallelDispatcher schedulerDispatcher = new ParallelDispatcher(executor);
+        PhaseScheduler scheduler = new PhaseScheduler(schedulerDispatcher);
         SimulationWorld world = mock(SimulationWorld.class);
         
         GameLoop loop = new GameLoop(10, executor, scheduler);

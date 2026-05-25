@@ -2,11 +2,29 @@ import React from 'react';
 import { useSimulationStore } from '../../store/useSimulationStore';
 
 export const SnapshotHistoryPanel: React.FC<{ configTickMs: number }> = ({ configTickMs }) => {
-  const { history, startFromSnapshot, loadHistoricalSnapshot } = useSimulationStore();
+  const { history, viewingHistory, startFromSnapshot, loadHistoricalSnapshot, exitHistoryView } = useSimulationStore();
 
   return (
     <div style={panelStyle}>
-      <h3>Snapshot History</h3>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+        <h3 style={{ margin: 0 }}>Snapshot History</h3>
+        {viewingHistory && (
+          <button
+            onClick={exitHistoryView}
+            style={{
+              background: '#eceff1',
+              border: '1px solid #cfd8dc',
+              padding: '5px 10px',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '0.8rem'
+            }}
+            title="Return to live updates"
+          >
+            Live View
+          </button>
+        )}
+      </div>
       {history.length === 0 ? (
         <p style={{ color: '#888', fontSize: '0.9rem' }}>No snapshots saved yet.</p>
       ) : (

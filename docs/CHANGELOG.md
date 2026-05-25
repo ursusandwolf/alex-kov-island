@@ -9,10 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Type-safe `getDefaultPluginType()` in `SimulationProperties` to improve plugin initialization.
+- Repeatable multithread profiling workflow in `docs/testing/MULTITHREAD_PROFILING.md` with `scripts/profile-multithreading.sh`.
 
 ### Fixed
 - **Architectural Cleanup**: Removed multiple Fully Qualified Names (FQNs) in code bodies across `island-engine`, `island-nature`, and `island-simcity` modules, adhering to style guidelines in `GEMINI.md`.
 - **Configuration**: Removed unnecessary `volatile` modifiers in `SimulationProperties` where standard Spring `ConfigurationProperties` behavior is sufficient.
+- **Simulation Lifecycle**: `SimulationService.stop()` now fully releases the active context instead of leaving executors alive after manual stop.
+- **Graceful Shutdown**: `GameLoop.stop()` no longer interrupts the current tick, preventing noisy shutdown errors during normal stop/restart flows.
+- **Frontend State Isolation**: Historical snapshots are no longer overwritten by live WebSocket updates until the user explicitly returns to live mode.
+- **Test Runtime**: Mockito test modules now use the subclass mock maker, avoiding JVM self-attach failures on Java 21 environments without inline agent support.
 
 ### Changed
 - Refactored `SimulationService` to use new type-safe property accessors.
