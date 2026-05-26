@@ -1,8 +1,21 @@
 # Build stage
 FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
 WORKDIR /app
+
+# 1. Copy only pom.xml files to cache dependencies
+COPY pom.xml .
+COPY island-engine/pom.xml island-engine/pom.xml
+COPY island-nature/pom.xml island-nature/pom.xml
+COPY island-simcity/pom.xml island-simcity/pom.xml
+COPY island-app/pom.xml island-app/pom.xml
+COPY island-benchmarks/pom.xml island-benchmarks/pom.xml
+
+# 2. Pre-fetch dependencies
+RUN mvn dependency:go-offline -B
+
+# 3. Copy source code and build
 COPY . .
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTests -B
 
 # Runtime stage
 FROM eclipse-temurin:21-jre-alpine

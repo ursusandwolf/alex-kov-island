@@ -1,7 +1,7 @@
 # Project Context: Island Ecosystem Simulator
 
-## Status: Dashboard Operational (v1.60.0)
-The dashboard is fully functional. Recent updates focused on architectural hardening, FQN removal, and type-safe configuration.
+## Status: Hardened & Optimized (v1.61.0)
+The system is now "v14-Review-Ready" with hardened persistence, optimized Docker builds, and efficient frontend polling.
 
 ## Project Goal
 To provide a high-performance, extensible engine for simulating complex ecosystems and urban environments, leveraging modern Java features and ECS architecture.
@@ -9,12 +9,14 @@ To provide a high-performance, extensible engine for simulating complex ecosyste
 ## System State (Summary)
 - **Engine**: Stable, Zero-GC hot path, now with non-blocking cell traversal.
 - **Domains**: Nature and SimCity are integrated and performant at 20x20 scale.
-- **Backend**: Spring Boot 3.2.5 (Security disabled) with JPA/H2 storage.
-- **Frontend**: Vite + React 18 dashboard. Refactored architecture using TanStack Query for server state management and slimmed-down Zustand stores for UI local state.
+- **Backend**: Spring Boot 3.2.5 (Security disabled) with **Persistent H2 Storage**. Snapshots now survive restarts.
+- **Frontend**: Vite + React 18. **Intelligent Polling**: TanStack Query now only polls when WebSocket is disconnected.
+- **Infrastructure**: Optimized **multi-stage Dockerfile** with dependency caching. Prometheus pre-configured for real-time monitoring.
 
 ## Technical Entry Point
 For detailed architectural patterns, API specs, and implementation standards, refer to:
 👉 **[DOCUMENTATION.md](DOCUMENTATION.md)**
+👉 **[ARCHITECTURE_PRESENTATION.md](ARCHITECTURE_PRESENTATION.md)** (Interview/Demo Guide)
 
 ## Roadmap & Pending Items
 1.  **Observability Phase 2**:

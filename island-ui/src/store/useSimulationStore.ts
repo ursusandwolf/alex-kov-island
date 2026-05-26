@@ -8,10 +8,12 @@ interface SimulationState {
   error: string | null;
   history: string[];
   viewingHistory: boolean;
+  connected: boolean;
   setSnapshot: (snapshot: WorldSnapshot | null) => void;
   setLiveSnapshot: (snapshot: WorldSnapshot | null) => void;
   setStatus: (status: SimulationStatus) => void;
   setError: (error: string | null) => void;
+  setConnected: (connected: boolean) => void;
   exitHistoryView: () => void;
   start: (type: 'nature' | 'simcity', width?: number, height?: number, tickMs?: number) => Promise<void>;
   startFromSnapshot: (filename: string, type: 'nature' | 'simcity', tickMs?: number) => Promise<void>;
@@ -30,10 +32,12 @@ export const useSimulationStore = create<SimulationState>((set) => ({
   error: null,
   history: [],
   viewingHistory: false,
+  connected: false,
   setSnapshot: (snapshot) => set({ snapshot }),
   setLiveSnapshot: (snapshot) => set((state) => state.viewingHistory ? state : { snapshot }),
   setStatus: (status) => set({ status }),
   setError: (error) => set({ error }),
+  setConnected: (connected) => set({ connected }),
   exitHistoryView: () => set({ viewingHistory: false }),
 
   updateStatus: async () => {

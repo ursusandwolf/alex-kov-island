@@ -5,7 +5,8 @@ import { WorldSnapshot } from '../types/simulation';
 import { useSimulationStore } from '../store/useSimulationStore';
 
 export function useSimulationSocket() {
-  const [connected, setConnected] = useState(false);
+  const connected = useSimulationStore(state => state.connected);
+  const setConnected = useSimulationStore(state => state.setConnected);
   const setLiveSnapshot = useSimulationStore(state => state.setLiveSnapshot);
 
   useEffect(() => {
@@ -32,7 +33,7 @@ export function useSimulationSocket() {
     return () => {
       client.deactivate();
     };
-  }, [setLiveSnapshot]);
+  }, [setLiveSnapshot, setConnected]);
 
   return { connected };
 }

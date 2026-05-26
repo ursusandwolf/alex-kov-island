@@ -1,12 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { simulationApi } from '../api/simulationApi';
 import { mapSnapshotToDomain } from '../repositories/simulationRepository';
+import { useSimulationStore } from '../store/useSimulationStore';
 
 export const useSimulationStatus = () => {
+  const connected = useSimulationStore(state => state.connected);
+
   return useQuery({
     queryKey: ['simulation', 'status'],
     queryFn: simulationApi.getStatus,
-    refetchInterval: 2000,
+    refetchInterval: connected ? false : 3000,
   });
 };
 

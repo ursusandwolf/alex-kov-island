@@ -15,10 +15,10 @@ The system follows a **Modular Monolith** approach with strict separation of con
 - **Lombok**: Ubiquitous use for boilerplate reduction.
 
 ## Database & Infrastructure
-- **Persistence**: JPA with H2 (in-memory/file). Snapshots are stored as JSON CLOBs.
+- **Persistence**: JPA with **persistent H2 storage** (`jdbc:h2:file:./data/simulations_db`). Snapshots are stored as JSON CLOBs.
 - **Observability**: Spring Boot Actuator + Micrometer + Prometheus.
-- **Security**: Authentication is currently disabled to streamline development and visualization.
-- **Containerization**: Multi-stage Docker build producing a lean JRE-based image.
+- **Frontend**: Vite + React 18. Uses **intelligent polling** (only as fallback for WebSocket) and TanStack Query.
+- **Containerization**: Optimized multi-stage Docker build with dependency caching. Produces a lean JRE-based image.
 
 ## API Specification (v1)
 All endpoints are prefixed with `/api/v1/simulation`.

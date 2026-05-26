@@ -1,40 +1,25 @@
 # Island Ecosystem Simulator: Roadmap & TODO
 
-## 🚀 Phase 1: Architectural Foundation (Completed)
-- [x] **Vector 1: Event-Driven Architecture**
-- [x] **Vector 2: ECS (Entity-Component-System) Evolution**
+## 🚀 Architectural Milestones (Completed)
+- [x] **Event-Driven Core**: Decoupled domain logic using `EventBus`.
+- [x] **ECS Evolution**: Advanced Entity-Component-System with SoA (Struct of Arrays) for performance.
+- [x] **Parallelism**: `SystemExecutionGraph` and `ParallelDispatcher` for concurrent simulation phases.
+- [x] **Modular Isolation**: Full JPMS integration with strict package exports.
+- [x] **Observability**: Prometheus metrics, Spring Boot Actuator, and SpringDoc OpenAPI.
+- [x] **Hardened Persistence**: JPA/H2 file-based storage for simulation history and snapshots.
+- [x] **Docker Stack**: Multi-stage `Dockerfile` with dependency caching and `docker-compose.yml`.
+- [x] **Frontend Architecture**: Decoupled React layers using TanStack Query, Zustand, and custom hooks.
 
-## 🚀 Sprint 3: Advanced ECS & Performance (Completed)
-- [x] **Task 1: System Execution Graph**
-- [x] **Task 2: ECS Archetypes**
-- [x] **Task 3: Final Architectural Cleanup**
-- [x] **Task 4: Performance Benchmarking & GC Optimization**
+## 🛠 Active Quality Hardening
+- [ ] **App Review**: Fix `SIMCITY` snapshot flow in `island-app` (`CityMap.createSnapshot()` returns `null`, breaking REST snapshot, WebSocket broadcast, and snapshot persistence paths).
+- [ ] **Persistence**: Prevent snapshot filename collisions in JPA history (`snapshot_yyyyMMdd_HHmmss` is not unique enough; add uniqueness/ID strategy and matching tests).
+- [ ] **Lifecycle**: Make simulation restart atomic in `SimulationService` so failed `start()`/`startFromSnapshot()` does not destroy the currently running context.
+- [ ] **Mutation Testing**: Setup PITest in CI pipeline to verify test effectiveness.
+- [ ] **Benchmarking**: Expand JMH suites to cover SimCity domain logic.
 
-## 🛠 Maintenance & Quality Hardening (In Progress)
-- [ ] Increase test coverage for concurrent scenarios.
-- [ ] Implement Revapi for API compatibility checks.
-- [ ] Add jqwik property-based tests for core logic.
-- [ ] Setup PITest mutation testing in CI pipeline.
-- [x] **Technical Debt**: Refactor remaining `@Value` properties into `SimulationProperties`.
-- [ ] **Technical Debt**: Refactor `SocialService` to resolve OCP/SRP violations (Effect Providers & Logic Split).
-- [x] **Technical Debt**: Clean up dynamic interval logic in `SimulationBroadcaster`.
-- [x] **Performance**: Optimize `ParallelDispatcher` to eliminate hot-loop allocations.
-- [x] **Performance**: Implement adaptive load balancing based on execution time in `island-nature`.
-- [x] **Performance**: Zero-GC audit: refactor core iteration and pathfinding to avoid `Optional` and temporary lists.
-- [ ] **Test Coverage**: Fix `@Disabled` test `SnapshotHistoryServiceTest.testLoadSnapshotSuccess` (serialization complexity).
-- [x] **Infrastructure**: Implement SpringDoc OpenAPI for API documentation.
-- [x] **Infrastructure**: Configure Spring Boot Actuator for metrics and health monitoring.
-- [ ] **Operations**: Create Dockerfile and docker-compose.yml for production deployment.
-- [ ] **Security**: Implement Basic Authentication with Spring Security.
-- [ ] **Persistence**: Migrate snapshot storage from FS to JPA/H2.
-- [ ] **Validation**: Fully configure `@ConfigurationPropertiesBinding` (@Validated).
-
-## 🌍 Phase 3 & 4 (Completed)
-- [x] Vector 4: Climate & Global Systems
-- [x] Vector 5: Headless & API
-- [x] Vector 6: Visualization & App Layer
-- [x] Vector 7: Real-Time Interaction
-- [x] Vector 8: Serialization & Save States
-- [x] Vector 9: CI/CD & Automation
-- [x] Vector 10: Quality Gate Hardening
-- [x] Vector 11: Modular Isolation
+## 📈 Future Vectors (Backlog)
+- [ ] **Climate System**: Implement global temperature and moisture cycles affecting Nature and SimCity domains.
+- [ ] **Spatial Indexing**: Replace O(8) neighbor search with QuadTree/Spatial Hashing for $O(1)$ lookup at scale.
+- [ ] **Web UI 2.0**: Implementation of a 3D visualization using Three.js for the world canvas.
+- [ ] **Auth Layer**: Re-introduce Spring Security with JWT/OAuth2 for multi-user simulation isolation.
+- [ ] **Clustering**: Explore gRPC/Akka for distributed simulation across multiple JVM nodes.

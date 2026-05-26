@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.61.0] - 2026-05-26
+
+### Added
+- **Persistence Hardening**: Configured H2 file-based datasource (`jdbc:h2:file:./data/simulations_db`) to ensure simulation snapshots and history persist across application restarts.
+
+### Changed
+- **Docker Optimization**: Refactored `Dockerfile` to use a separate layer for Maven dependencies (`mvn dependency:go-offline`), significantly reducing build times by leveraging Docker layer caching.
+- **Frontend Performance**: Optimized `useSimulationStatus` TanStack Query hook to use polling only as a fallback when the WebSocket connection is lost, reducing unnecessary HTTP load during active sessions.
+- **State Management**: Centralized WebSocket connection status in the global Zustand store to allow coordination between different frontend hooks and components.
+
 ## [1.60.0] - 2026-05-25
 
 ### Added
