@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.62.0] - 2026-05-26
+
+### Fixed
+- **SimCity Domain**: Implemented `CityMap.createSnapshot()` which previously returned `null`, enabling snapshots, WebSocket broadcasts, and persistence for the SimCity domain.
+- **Persistence Reliability**: Hardened snapshot filename generation by adding milliseconds and a random suffix, and added a unique constraint to the database to prevent collisions.
+- **Atomic Lifecycle**: Refactored `SimulationService` to make simulation restarts atomic; the old simulation now continues running if the new context fails to build or start.
+
+### Added
+- New test suites: `SimCitySnapshotTest` and `SimulationServiceAtomicRestartTest` to verify architectural robustness.
+
 ## [1.61.0] - 2026-05-26
 
 ### Added

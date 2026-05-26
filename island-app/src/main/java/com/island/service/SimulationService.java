@@ -70,11 +70,9 @@ public class SimulationService {
     }
 
     private void doStart(SimulationType type, int width, int height, int tickMs, WorldSnapshot initialSnapshot) {
-        if (context != null) {
-            SimulationContext<?> oldContext = this.context;
-            this.context = null; // Set to null before closing to prevent race conditions in snapshot/status calls
-            oldContext.close();
-            log.info("Previous simulation context destroyed");
+        NamedSimulationPlugin<?> factory = plugins.get(type.name().toLowerCase());
+        if (factory == null) {
+            throw new IllegalArgumentException("Unknown simulation type: " + type);
         }
 
         SimulationConfig config = SimulationConfig.builder()
@@ -82,19 +80,27 @@ public class SimulationService {
                 .tickDurationMs(tickMs)
                 .build();
 
-        NamedSimulationPlugin<?> factory = plugins.get(type.name().toLowerCase());
-        if (factory == null) {
-            throw new IllegalArgumentException("Unknown simulation type: " + type);
-        }
-
-        // Create a configured instance of the plugin
+        // 1. Prepare new plugin and build new context FIRST to ensure atomicity
         SimulationPlugin<?> plugin = factory.withConfiguration(width, height, initialSnapshot);
+        SimulationContext<?> newContext = this.simulationEngine.build(plugin, config);
 
-        this.context = this.simulationEngine.build(plugin, config);
+        try {
+            // 2. If building succeeded, swap and close old one
+            SimulationContext<?> oldContext = this.context;
+            this.context = newContext; // Atomic swap
+            
+            if (oldContext != null) {
+                oldContext.close();
+                log.info("Previous simulation context destroyed after successful rebuild");
+            }
+            
+            eventPublisher.publishEvent(new SimulationStartedEvent(this.context));
+            this.context.gameLoop().start();
+        } catch (Exception e) {
+            newContext.close(); // Cleanup new context if start fails
+            throw e;
+        }
         
-        eventPublisher.publishEvent(new SimulationStartedEvent(this.context));
-        
-        this.context.gameLoop().start();
         log.info("Started new '{}' simulation ({}x{}) at {}ms/tick{}", 
                  type, width, height, tickMs, initialSnapshot != null ? " from snapshot" : "");
     }

@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Service for saving and loading simulation snapshots using JPA persistence.
@@ -43,7 +44,9 @@ public class SnapshotHistoryService {
         }
 
         WorldSnapshot snapshot = snapshotOpt.get();
-        String filename = "snapshot_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS"));
+        String suffix = UUID.randomUUID().toString().substring(0, 4);
+        String filename = "snapshot_" + timestamp + "_" + suffix;
         
         try {
             String content = objectMapper.writeValueAsString(snapshot);

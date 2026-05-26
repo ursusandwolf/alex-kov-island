@@ -9,11 +9,11 @@
 - [x] **Hardened Persistence**: JPA/H2 file-based storage for simulation history and snapshots.
 - [x] **Docker Stack**: Multi-stage `Dockerfile` with dependency caching and `docker-compose.yml`.
 - [x] **Frontend Architecture**: Decoupled React layers using TanStack Query, Zustand, and custom hooks.
-
 ## 🛠 Active Quality Hardening
-- [ ] **App Review**: Fix `SIMCITY` snapshot flow in `island-app` (`CityMap.createSnapshot()` returns `null`, breaking REST snapshot, WebSocket broadcast, and snapshot persistence paths).
-- [ ] **Persistence**: Prevent snapshot filename collisions in JPA history (`snapshot_yyyyMMdd_HHmmss` is not unique enough; add uniqueness/ID strategy and matching tests).
-- [ ] **Lifecycle**: Make simulation restart atomic in `SimulationService` so failed `start()`/`startFromSnapshot()` does not destroy the currently running context.
+- [ ] Increase test coverage for concurrent scenarios.
+- [x] **App Review**: Fix `SIMCITY` snapshot flow in `island-app` (`CityMap.createSnapshot()` returns `null`, breaking REST snapshot, WebSocket broadcast, and snapshot persistence paths).
+- [x] **Persistence**: Prevent snapshot filename collisions in JPA history (`snapshot_yyyyMMdd_HHmmss` is not unique enough; add uniqueness/ID strategy and matching tests).
+- [x] **Lifecycle**: Make simulation restart atomic in `SimulationService` so failed `start()`/`startFromSnapshot()` does not destroy the currently running context.
 - [ ] **Mutation Testing**: Setup PITest in CI pipeline to verify test effectiveness.
 - [ ] **Benchmarking**: Expand JMH suites to cover SimCity domain logic.
 

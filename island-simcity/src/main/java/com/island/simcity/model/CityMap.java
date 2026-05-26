@@ -38,6 +38,7 @@ public class CityMap implements SimulationWorld<SimEntity> {
     private final List<String> alerts = new CopyOnWriteArrayList<>();
     private final EventBus eventBus;
     private final ComponentRegistry componentRegistry;
+    private int tickCount = 0;
 
     public CityMap(int width, int height, EventBus eventBus, ComponentRegistry registry) {
         this.width = width;
@@ -85,6 +86,7 @@ public class CityMap implements SimulationWorld<SimEntity> {
     public void onEntityRemoved(SimEntity entity) {}
     @Override
     public void tick(int tickCount) {
+        this.tickCount = tickCount;
         if (money.get() < 0) {
             negativeBalanceTicks++;
             if (negativeBalanceTicks >= 5) {
@@ -115,5 +117,7 @@ public class CityMap implements SimulationWorld<SimEntity> {
     @Override
     public boolean moveEntity(SimEntity entity, SimulationNode<SimEntity> from, SimulationNode<SimEntity> to) { return false; }
     @Override
-    public WorldSnapshot createSnapshot() { return null; }
+    public WorldSnapshot createSnapshot() {
+        return new CitySnapshot(this, tickCount);
+    }
 }

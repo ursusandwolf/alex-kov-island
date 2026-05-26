@@ -67,6 +67,19 @@ class SnapshotHistoryServiceTest {
     }
 
     @Test
+    void testUniqueFilenames() {
+        IslandSnapshot testSnapshot = new IslandSnapshot();
+        when(simulationService.getSnapshot()).thenReturn(Optional.of(testSnapshot));
+
+        Optional<String> filename1 = snapshotHistoryService.saveCurrentSnapshot();
+        Optional<String> filename2 = snapshotHistoryService.saveCurrentSnapshot();
+
+        assertTrue(filename1.isPresent());
+        assertTrue(filename2.isPresent());
+        assertNotEquals(filename1.get(), filename2.get(), "Snapshots should have unique filenames");
+    }
+
+    @Test
     void testLoadSnapshotSuccess() throws Exception {
         IslandSnapshot testSnapshot = new IslandSnapshot();
         testSnapshot.setWidth(20);
