@@ -12,10 +12,10 @@
 ## 🛠 Active Quality Hardening
 - [x] **Zero-GC Hot Path**: Optimize concurrent execution to minimize object allocations (v1.63.0).
 - [x] **Performance Profiling**: Establish multithreaded performance baseline and identify scaling limits.
-- [x] **App Review**: Fix `SIMCITY` snapshot flow in `island-app` (`CityMap.createSnapshot()` returns `null`, breaking REST snapshot, WebSocket broadcast, and snapshot persistence paths).
-- [x] **Persistence**: Prevent snapshot filename collisions in JPA history (`snapshot_yyyyMMdd_HHmmss` is not unique enough; add uniqueness/ID strategy and matching tests).
-- [x] **Lifecycle**: Make simulation restart atomic in `SimulationService` so failed `start()`/`startFromSnapshot()` does not destroy the currently running context.
-- [ ] **Mutation Testing**: Setup PITest in CI pipeline to verify test effectiveness.
+- [x] **Mutation Testing**: Setup PITest in CI pipeline to verify test effectiveness (v1.64.0).
+- [x] **App Review**: Fix `SIMCITY` snapshot flow in `island-app`
+- [x] **Persistence**: Prevent snapshot filename collisions
+- [x] **Lifecycle**: Make simulation restart atomic
 - [ ] **Benchmarking**: Expand JMH suites to cover SimCity domain logic.
 
 ## 📈 Future Vectors (Backlog)

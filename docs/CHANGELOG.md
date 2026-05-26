@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.64.0] - 2026-05-26
+
+### Added
+- **Mutation Testing**: Integrated PITest into the build process and CI pipeline.
+- **Core Engine Tests**: Added comprehensive unit tests for `SystemExecutionGraph`, `PhaseScheduler`, `GameLoop`, and `EntityIdManager`.
+- **Quality Gates**: Established a 60% mutation threshold baseline for the project.
+
+### Changed
+- **Testing Infrastructure**: Enabled `mock-maker-inline` to support mocking of `final` engine classes.
+- **Dependency Management**: Centralized PITest configuration in the parent `pom.xml`.
+
+### Fixed
+- **SystemExecutionGraph**: Fixed a scheduling bug where independent systems could jump over their priority-based dependencies into earlier batches, potentially causing data inconsistency.
+
 ## [1.63.0] - 2026-05-26
 
 ### Optimized

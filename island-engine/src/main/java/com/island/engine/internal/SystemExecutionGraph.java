@@ -37,16 +37,11 @@ public final class SystemExecutionGraph {
         List<List<ParallelTask<T>>> schedule = new ArrayList<>();
 
         for (ParallelTask<T> task : sorted) {
-            boolean placed = false;
-            // Try to place in the earliest possible batch without conflicts
-            for (List<ParallelTask<T>> batch : schedule) {
-                if (!conflictsWithAny(task, batch)) {
-                    batch.add(task);
-                    placed = true;
-                    break;
-                }
-            }
-            if (!placed) {
+            List<ParallelTask<T>> lastBatch = schedule.isEmpty() ? null : schedule.get(schedule.size() - 1);
+            
+            if (lastBatch != null && !conflictsWithAny(task, lastBatch)) {
+                lastBatch.add(task);
+            } else {
                 List<ParallelTask<T>> newBatch = new ArrayList<>();
                 newBatch.add(task);
                 schedule.add(newBatch);

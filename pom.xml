@@ -6,7 +6,7 @@
 
     <groupId>com.island</groupId>
     <artifactId>island-simulator-parent</artifactId>
-    <version>1.54.0</version>
+    <version>1.63.0</version>
     <packaging>pom</packaging>
 
     <name>Island Ecosystem Simulator - Parent</name>
@@ -213,6 +213,31 @@
                     <failsOnError>true</failsOnError>
                     <linkXRef>false</linkXRef>
                     <excludes>**/module-info.java</excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>1.15.8</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-junit5-plugin</artifactId>
+                        <version>1.2.1</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <targetClasses>
+                        <param>com.island.*</param>
+                    </targetClasses>
+                    <targetTests>
+                        <param>com.island.*</param>
+                    </targetTests>
+                    <threads>4</threads>
+                    <outputFormats>
+                        <outputFormat>HTML</outputFormat>
+                    </outputFormats>
+                    <mutationThreshold>60</mutationThreshold>
                 </configuration>
             </plugin>
         </plugins>
