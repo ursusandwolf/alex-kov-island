@@ -2,15 +2,22 @@ import { create } from 'zustand';
 import { simulationApi } from '../api/simulationApi';
 import { SimulationStatus, WorldSnapshot } from '../types/simulation';
 
+export interface PopulationPoint {
+  tick: number;
+  [key: string]: number; // speciesCode: count
+}
+
 interface SimulationState {
   status: SimulationStatus;
   snapshot: WorldSnapshot | null;
   error: string | null;
   history: string[];
+  populationHistory: PopulationPoint[];
   viewingHistory: boolean;
   connected: boolean;
   setSnapshot: (snapshot: WorldSnapshot | null) => void;
   setLiveSnapshot: (snapshot: WorldSnapshot | null) => void;
+  addPopulationPoint: (point: PopulationPoint) => void;
   setStatus: (status: SimulationStatus) => void;
   setError: (error: string | null) => void;
   setConnected: (connected: boolean) => void;
@@ -26,119 +33,94 @@ interface SimulationState {
   loadHistoricalSnapshot: (filename: string) => Promise<void>;
 }
 
-export const useSimulationStore = create<SimulationState>((set) => ({
-  status: 'IDLE',
-  snapshot: null,
-  error: null,
-  history: [],
-  viewingHistory: false,
-  connected: false,
-  setSnapshot: (snapshot) => set({ snapshot }),
-  setLiveSnapshot: (snapshot) => set((state) => state.viewingHistory ? state : { snapshot }),
-  setStatus: (status) => set({ status }),
-  setError: (error) => set({ error }),
-  setConnected: (connected) => set({ connected }),
-  exitHistoryView: () => set({ viewingHistory: false }),
-
-  updateStatus: async () => {
+export const useSimulationStore = create<SimulationState>((set, get) => {
+  const wrapApi = async (fn: () => Promise<any>, onSuccess?: (data?: any) => void) => {
     try {
-      const data = await simulationApi.getStatus();
-      set({ status: data.status, error: null });
-    } catch (err) {
-      set({ error: err instanceof Error ? err.message : String(err) });
-    }
-  },
-
-  start: async (type, width = 20, height = 20, tickMs = 100) => {
-    try {
-      const response = await simulationApi.start(type.toUpperCase(), width, height, tickMs);
-      if (!response.ok) {
-        throw new Error(await response.text() || response.statusText);
+      const result = await fn();
+      if (result instanceof Response && !result.ok) {
+        throw new Error(await result.text() || result.statusText);
       }
-      set({ viewingHistory: false, error: null });
-      await useSimulationStore.getState().updateStatus();
+      if (onSuccess) onSuccess(result);
+      set({ error: null });
     } catch (err) {
       set({ error: err instanceof Error ? err.message : String(err) });
     }
-  },
+  };
 
-  startFromSnapshot: async (filename, type, tickMs = 100) => {
-    try {
-      const response = await simulationApi.startFromSnapshot(filename, type.toUpperCase(), tickMs);
-      if (!response.ok) {
-        throw new Error(await response.text() || response.statusText);
+  return {
+    status: 'IDLE',
+    snapshot: null,
+    error: null,
+    history: [],
+    populationHistory: [],
+    viewingHistory: false,
+    connected: false,
+    setSnapshot: (snapshot) => set({ snapshot }),
+    setLiveSnapshot: (snapshot) => set((state) => {
+      if (state.viewingHistory) return state;
+      return { snapshot };
+    }),
+    addPopulationPoint: (point) => set((state) => {
+      const newHistory = [...state.populationHistory, point].slice(-50); // Keep last 50 points
+      return { populationHistory: newHistory };
+    }),
+    setStatus: (status) => set({ status }),
+    setError: (error) => set({ error }),
+    setConnected: (connected) => set({ connected }),
+    exitHistoryView: () => set({ viewingHistory: false }),
+
+    updateStatus: () => wrapApi(
+      () => simulationApi.getStatus(),
+      (data) => set({ status: data.status })
+    ),
+
+    start: (type, width = 20, height = 20, tickMs = 100) => wrapApi(
+      () => simulationApi.start(type.toUpperCase(), width, height, tickMs),
+      () => {
+        set({ viewingHistory: false, populationHistory: [] });
+        get().updateStatus();
       }
-      set({ viewingHistory: false, error: null });
-      await useSimulationStore.getState().updateStatus();
-    } catch (err) {
-      set({ error: err instanceof Error ? err.message : String(err) });
-    }
-  },
+    ),
 
-  pause: async () => {
-    try {
-      const response = await simulationApi.pause();
-      if (!response.ok) {
-        throw new Error(await response.text() || response.statusText);
+    startFromSnapshot: (filename, type, tickMs = 100) => wrapApi(
+      () => simulationApi.startFromSnapshot(filename, type.toUpperCase(), tickMs),
+      () => {
+        set({ viewingHistory: false, populationHistory: [] });
+        get().updateStatus();
       }
-      await useSimulationStore.getState().updateStatus();
-    } catch (err) {
-      set({ error: err instanceof Error ? err.message : String(err) });
-    }
-  },
+    ),
 
-  resume: async () => {
-    try {
-      const response = await simulationApi.resume();
-      if (!response.ok) {
-        throw new Error(await response.text() || response.statusText);
+    pause: () => wrapApi(
+      () => simulationApi.pause(),
+      () => get().updateStatus()
+    ),
+
+    resume: () => wrapApi(
+      () => simulationApi.resume(),
+      () => get().updateStatus()
+    ),
+
+    stop: () => wrapApi(
+      () => simulationApi.stop(),
+      () => {
+        get().updateStatus();
+        set({ snapshot: null, viewingHistory: false, populationHistory: [] });
       }
-      await useSimulationStore.getState().updateStatus();
-    } catch (err) {
-      set({ error: err instanceof Error ? err.message : String(err) });
-    }
-  },
+    ),
 
-  stop: async () => {
-    try {
-      const response = await simulationApi.stop();
-      if (!response.ok) {
-        throw new Error(await response.text() || response.statusText);
-      }
-      await useSimulationStore.getState().updateStatus();
-      set({ snapshot: null, viewingHistory: false, error: null });
-    } catch (err) {
-      set({ error: err instanceof Error ? err.message : String(err) });
-    }
-  },
+    fetchHistory: () => wrapApi(
+      () => simulationApi.getHistory(),
+      (data) => set({ history: data.filenames || [] })
+    ),
 
-  fetchHistory: async () => {
-    try {
-      const data = await simulationApi.getHistory();
-      set({ history: data.filenames || [], error: null });
-    } catch (err) {
-      set({ error: err instanceof Error ? err.message : String(err) });
-    }
-  },
+    saveSnapshot: () => wrapApi(
+      () => simulationApi.saveSnapshot(),
+      () => get().fetchHistory()
+    ),
 
-  saveSnapshot: async () => {
-    try {
-      const response = await simulationApi.saveSnapshot();
-      if (!response.ok) {
-        throw new Error(await response.text() || response.statusText);
-      }
-      await useSimulationStore.getState().fetchHistory();
-    } catch (err) {
-      set({ error: err instanceof Error ? err.message : String(err) });
-    }
-  },
-
-  loadHistoricalSnapshot: async (filename) => {
-    try {
-      const snapshot = await simulationApi.getHistoricalSnapshot(filename);
-      set({ snapshot, error: null, viewingHistory: true });
-    } catch (err) {
-      set({ error: err instanceof Error ? err.message : String(err) });
-    }
-  },
-}));
+    loadHistoricalSnapshot: (filename) => wrapApi(
+      () => simulationApi.getHistoricalSnapshot(filename),
+      (snapshot) => set({ snapshot, viewingHistory: true })
+    ),
+  };
+});

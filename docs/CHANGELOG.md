@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.68.0] - 2026-05-26
+
+### Fixed
+- **Frontend Refactoring**: Decomposed `App.tsx` into specialized sub-components (`Header`, `CellDetails`, `Legend`) for better maintainability.
+- **Style Modernization**: Externalized almost all inline styles to `App.css`, improving CSS reusability and component readability.
+- **Store Optimization**: Unified API error handling in `useSimulationStore.ts` using a `wrapApi` helper, reducing code duplication.
+- **React Best Practices**: Removed deprecated `React.FC` usage across all frontend components.
+- **Semantic HTML**: Improved accessibility and structure using semantic elements like `ul`/`li` for legends.
+
 ## [1.67.0] - 2026-05-26
 
 ### Added

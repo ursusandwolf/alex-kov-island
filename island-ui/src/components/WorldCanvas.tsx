@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { WorldSnapshot } from '../types/simulation';
 import { getSpeciesColor } from '../utils/colors';
 
@@ -9,7 +9,12 @@ interface WorldCanvasProps {
   onCellClick?: (coords: string | null) => void;
 }
 
-const WorldCanvas: React.FC<WorldCanvasProps> = ({ snapshot, cellSize = 12, selectedCoords, onCellClick }) => {
+export function WorldCanvas({ 
+  snapshot, 
+  cellSize = 12, 
+  selectedCoords, 
+  onCellClick 
+}: WorldCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -67,30 +72,21 @@ const WorldCanvas: React.FC<WorldCanvasProps> = ({ snapshot, cellSize = 12, sele
 
   if (!snapshot) {
     return (
-      <div style={{ 
-        width: 400, 
-        height: 400, 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        background: '#fff',
-        border: '1px solid #ccc',
-        borderRadius: 8
-      }}>
+      <div className="waiting-container">
         Waiting for simulation data...
       </div>
     );
   }
 
   return (
-    <div style={{ overflow: 'auto', padding: 10, background: '#fff', borderRadius: 8, boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
+    <div className="canvas-container">
       <canvas 
         ref={canvasRef} 
-        style={{ display: 'block', cursor: onCellClick ? 'pointer' : 'default' }}
+        className={`world-canvas ${onCellClick ? 'cursor-pointer' : ''}`}
         onClick={handleClick}
       />
     </div>
   );
-};
+}
 
 export default WorldCanvas;

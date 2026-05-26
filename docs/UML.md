@@ -256,3 +256,43 @@ graph LR
     SW -- Updates --> ZS
     SC -.-> GE
 ```
+
+## Frontend Component Architecture (v1.68.0)
+
+```mermaid
+graph TD
+    App[App.tsx]
+    
+    subgraph Layout
+        H[Header]
+    end
+    
+    subgraph SimulationComponents
+        SC[SimulationControls]
+        WC[WorldCanvas]
+        SM[SimulationMetrics]
+        SH[SnapshotHistoryPanel]
+        CD[CellDetails]
+        L[Legend]
+    end
+    
+    subgraph DataLayer
+        US[useSimulationStore]
+        SK[useSimulationSocket]
+        API[simulationApi]
+    end
+    
+    App --> H
+    App --> SC
+    App --> WC
+    App --> SM
+    App --> SH
+    App --> CD
+    App --> L
+    
+    SC --> US
+    SH --> US
+    WC --> US
+    US --> API
+    SK --> US
+```

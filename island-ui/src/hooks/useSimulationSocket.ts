@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { WorldSnapshot } from '../types/simulation';
@@ -23,6 +23,23 @@ export function useSimulationSocket() {
       client.subscribe('/topic/world-state', (message) => {
         const snapshot: WorldSnapshot = JSON.parse(message.body);
         setLiveSnapshot(snapshot);
+
+        // Update population history
+        const speciesData: Record<string, number> = {};
+        if (snapshot.metrics) {
+          Object.entries(snapshot.metrics).forEach(([key, value]) => {
+            if (key.startsWith('species.')) {
+              speciesData[key.replace('species.', '')] = Number(value);
+            }
+          });
+        }
+        
+        if (Object.keys(speciesData).length > 0) {
+          useSimulationStore.getState().addPopulationPoint({
+            tick: snapshot.tickCount,
+            ...speciesData
+          });
+        }
       });
     };
 
