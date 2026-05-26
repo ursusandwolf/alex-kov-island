@@ -19,6 +19,10 @@ graph TD
         IU[island-util]
     end
 
+    subgraph QA
+        IB[island-benchmarks]
+    end
+
     AL --> NP
     SL --> SP
     NP --> IE
@@ -26,6 +30,8 @@ graph TD
     IE --> IU
     NP --> IU
     SP --> IU
+    IB --> IE
+    IB --> SP
 ```
 
 ## ECS & SoA Architecture (Engine)

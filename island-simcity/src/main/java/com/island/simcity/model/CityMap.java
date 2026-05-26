@@ -2,6 +2,8 @@ package com.island.simcity.model;
 
 import com.island.engine.core.SimulationNode;
 import com.island.engine.core.SimulationWorld;
+import com.island.engine.core.SpatialIndex;
+import com.island.engine.core.GridSpatialIndex;
 import com.island.engine.core.WorkUnit;
 import com.island.engine.core.DefaultWorkUnit;
 import com.island.engine.model.WorldSnapshot;
@@ -38,6 +40,7 @@ public class CityMap implements SimulationWorld<SimEntity> {
     private final List<String> alerts = new CopyOnWriteArrayList<>();
     private final EventBus eventBus;
     private final ComponentRegistry componentRegistry;
+    private final SpatialIndex<SimEntity> spatialIndex;
     private int tickCount = 0;
 
     public CityMap(int width, int height, EventBus eventBus, ComponentRegistry registry) {
@@ -45,6 +48,7 @@ public class CityMap implements SimulationWorld<SimEntity> {
         this.height = height;
         this.eventBus = eventBus;
         this.componentRegistry = registry;
+        this.spatialIndex = new GridSpatialIndex<>(this);
         this.grid = new CityTile[width][height];
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
@@ -113,7 +117,22 @@ public class CityMap implements SimulationWorld<SimEntity> {
         return List.of(new DefaultWorkUnit<>(allTiles));
     }
     @Override
-    public Optional<SimulationNode<SimEntity>> getNode(SimulationNode<SimEntity> current, int dx, int dy) { return Optional.empty(); }
+    public Optional<SimulationNode<SimEntity>> getNode(SimulationNode<SimEntity> current, int dx, int dy) {
+        if (current instanceof CityTile tile) {
+            int tx = tile.getX() + dx;
+            int ty = tile.getY() + dy;
+            if (GridUtils.isValid(tx, ty, width, height)) {
+                return Optional.of(grid[tx][ty]);
+            }
+        }
+        return Optional.empty();
+    }
+    
+    @Override
+    public SpatialIndex<SimEntity> getSpatialIndex() {
+        return spatialIndex;
+    }
+
     @Override
     public boolean moveEntity(SimEntity entity, SimulationNode<SimEntity> from, SimulationNode<SimEntity> to) { return false; }
     @Override

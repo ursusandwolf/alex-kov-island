@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.island</groupId>
         <artifactId>island-simulator-parent</artifactId>
-        <version>1.63.0</version>
+        <version>1.67.0</version>
     </parent>
 
     <artifactId>island-simcity</artifactId>

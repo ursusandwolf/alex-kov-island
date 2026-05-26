@@ -37,8 +37,19 @@ All endpoints are prefixed with `/api/v1/simulation`.
 - **Payload**: `WorldSnapshot` (Polymorphic JSON).
 - **Broadcast Interval**: Configurable via `sim.broadcastInterval`.
 
-## Testing Strategy
+## Testing & Quality Strategy
 - **Unit/Integration**: JUnit 5 + Mockito.
+- **Mutation Testing**: PITest (Target: 60%+ score) integrated into CI.
 - **Property-based**: `jqwik` for complex domain invariant verification.
 - **ArchUnit**: Enforcing JPMS and layer boundaries.
 - **Compatibility**: `Revapi` for API surface tracking.
+
+## Performance Benchmarking
+The project includes a dedicated `island-benchmarks` module using **JMH (Java Microbenchmark Harness)** to track hot path performance and identify regressions.
+
+### Key Benchmarks
+1.  **SoA vs. Map**: Comparing Structure of Arrays storage with standard `HashMap` for component access.
+2.  **SimCity Hot Paths**:
+    *   `ConnectivityService`: BFS-based propagation of road, water, and power networks.
+    *   `PopulationService`: Scaling of resident logic with increasing entity density.
+    *   `Full Tick`: End-to-end simulation cycle performance across different map sizes (20x20 to 100x100).

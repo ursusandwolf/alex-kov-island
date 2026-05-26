@@ -20,6 +20,8 @@ import lombok.Getter;
 import lombok.Setter;
 import com.island.engine.core.SimulationNode;
 import com.island.engine.core.SimulationWorld;
+import com.island.engine.core.SpatialIndex;
+import com.island.engine.core.GridSpatialIndex;
 import com.island.engine.core.WorkUnit;
 import com.island.engine.model.WorldSnapshot;
 import com.island.nature.entities.core.Animal;
@@ -49,6 +51,7 @@ public class Island implements NatureWorld {
     private int tickCount = 0;
     @Setter private boolean redBookProtectionEnabled = true;
     private final EventBus eventBus;
+    private final SpatialIndex<Organism> spatialIndex;
 
     public Island(NatureDomainContext domainContext, int width, int height, EventBus eventBus) {
         this.domainContext = domainContext;
@@ -56,6 +59,7 @@ public class Island implements NatureWorld {
         this.width = width;
         this.height = height;
         this.eventBus = eventBus;
+        this.spatialIndex = new GridSpatialIndex<>(this);
         this.registry = domainContext.getSpeciesRegistry();
         this.componentRegistry = domainContext.getComponentRegistry();
         this.statisticsService = domainContext.getStatisticsService();
@@ -299,6 +303,21 @@ public class Island implements NatureWorld {
             }
         });
         return result[0];
+    }
+
+    @Override
+    public InteractionProvider getInteractionProvider() {
+        return domainContext.getInteractionProvider();
+    }
+
+    @Override
+    public SpeciesRegistry getSpeciesRegistry() {
+        return registry;
+    }
+
+    @Override
+    public SpatialIndex<Organism> getSpatialIndex() {
+        return spatialIndex;
     }
 
     @Override

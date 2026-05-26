@@ -8,6 +8,8 @@ import com.island.engine.core.SimulationWorld;
 import com.island.nature.entities.core.Organism;
 import com.island.nature.entities.registry.BiomassManager;
 import com.island.nature.entities.registry.NatureRegistry;
+import com.island.nature.entities.registry.SpeciesRegistry;
+import com.island.nature.model.InteractionProvider;
 
 import com.island.nature.entities.core.Animal;
 import com.island.nature.model.Cell;
@@ -26,6 +28,10 @@ public interface NatureWorld extends SimulationWorld<Organism>,
     HealthStorage getHealthStorage();
 
     AgeStorage getAgeStorage();
+
+    InteractionProvider getInteractionProvider();
+
+    SpeciesRegistry getSpeciesRegistry();
 
     /**
      * Gets a specific cell by relative coordinates from a current cell.

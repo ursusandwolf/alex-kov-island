@@ -1,17 +1,19 @@
 # Project Context: Island Ecosystem Simulator
 
-## Status: Hardened & Optimized (v1.63.0)
-The system is now "v14-Review-Ready" with hardened persistence, optimized Docker builds, and **Zero-GC hot paths**.
+## Status: Intelligent & Spatial-Aware (v1.67.0)
+The system now features **Intelligent Animal Behavior** driven by a Spatial Indexing Framework. Animals can sense prey and predators, making informed movement decisions.
 
 ## Project Goal
 To provide a high-performance, extensible engine for simulating complex ecosystems and urban environments, leveraging modern Java features and ECS architecture.
 
 ## System State (Summary)
-- **Engine**: Stable, **Zero-GC hot path** (v1.63.0). Pause times reduced by 18x.
+- **Engine**: Stable, **Zero-GC hot path** (v1.63.0+). Mutation score 69% (PITest).
+- **Intelligence**: `AnimalMovementSystem` uses `SpatialIndex` and `SenseComponent` for predatory/prey heuristics.
+- **Performance**: Expanded **JMH benchmarks** cover both Nature (SoA) and SimCity (Connectivity/Population) domains.
 - **Domains**: Nature and SimCity are integrated and performant at 20x20 scale.
-- **Backend**: Spring Boot 3.2.5 (Security disabled) with **Persistent H2 Storage**. Snapshots now survive restarts.
-- **Frontend**: Vite + React 18. **Intelligent Polling**: TanStack Query now only polls when WebSocket is disconnected.
-- **Infrastructure**: Optimized **multi-stage Dockerfile** with dependency caching. Prometheus pre-configured for real-time monitoring.
+- **Backend**: Spring Boot 3.2.5 (Security disabled) with **Persistent H2 Storage**. Snapshots survive restarts.
+- **Frontend**: Vite + React 18. **Intelligent Polling**: TanStack Query fallback.
+- **Infrastructure**: Optimized **multi-stage Dockerfile** with dependency caching. Prometheus pre-configured.
 
 ## Technical Entry Point
 For detailed architectural patterns, API specs, and implementation standards, refer to:
@@ -19,12 +21,13 @@ For detailed architectural patterns, API specs, and implementation standards, re
 👉 **[ARCHITECTURE_PRESENTATION.md](ARCHITECTURE_PRESENTATION.md)** (Interview/Demo Guide)
 
 ## Roadmap & Pending Items
-1.  **Quality Hardening**:
-    *   **In Progress**: Mutation Testing (PITest) to verify test suite effectiveness (Target: 65%+ mutation score).
-    *   Expand `jqwik` property-based tests to cover entity movement and reproduction race conditions.
-2.  **Observability Phase 2**:
+1.  **Observability Phase 2**:
     *   Implement pre-configured Grafana dashboards for domain-specific metrics.
     *   Add ELK/Loki for structured logging analysis.
-3.  **Domain Expansion**:
+2.  **Domain Expansion**:
     *   Develop "Deep Sea" plugin with fluid dynamics and light-based metabolic cycles.
     *   Implement "Space" plugin for orbital mechanics and resource management.
+3.  **Algorithmic Optimization**:
+    *   [DONE] Implement Spatial Hashing/QuadTree for O(1) neighbor searches in Nature/SimCity.
+    *   [DONE] Refine "Sense" logic to include fleeing from predators and seeking prey.
+    *   Refine "Sense" logic to include seeking water and mating partners.

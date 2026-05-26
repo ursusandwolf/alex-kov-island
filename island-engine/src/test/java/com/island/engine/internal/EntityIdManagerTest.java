@@ -14,10 +14,10 @@ class EntityIdManagerTest {
     @DisplayName("EntityIdManager: Should generate unique IDs")
     void shouldGenerateUniqueIds() {
         EntityIdManager manager = new EntityIdManager();
-        Set<Long> ids = new HashSet<>();
+        Set<Integer> ids = new HashSet<>();
         
         for (int i = 0; i < 1000; i++) {
-            assertTrue(ids.add(manager.getNextId()));
+            assertTrue(ids.add(manager.acquireId()));
         }
     }
 
@@ -25,11 +25,11 @@ class EntityIdManagerTest {
     @DisplayName("EntityIdManager: Should recycle IDs")
     void shouldRecycleIds() {
         EntityIdManager manager = new EntityIdManager();
-        long id1 = manager.getNextId();
-        long id2 = manager.getNextId();
+        int id1 = manager.acquireId();
+        int id2 = manager.acquireId();
         
         manager.releaseId(id1);
-        long id3 = manager.getNextId();
+        int id3 = manager.acquireId();
         
         assertEquals(id1, id3, "Should recycle the first released ID");
         assertNotEquals(id2, id3);
@@ -39,18 +39,18 @@ class EntityIdManagerTest {
     @DisplayName("EntityIdManager: Should handle multiple releases")
     void shouldHandleMultipleReleases() {
         EntityIdManager manager = new EntityIdManager();
-        long id1 = manager.getNextId();
-        long id2 = manager.getNextId();
-        long id3 = manager.getNextId();
+        int id1 = manager.acquireId();
+        int id2 = manager.acquireId();
+        int id3 = manager.acquireId();
         
         manager.releaseId(id1);
         manager.releaseId(id2);
         
-        long next1 = manager.getNextId();
-        long next2 = manager.getNextId();
+        int next1 = manager.acquireId();
+        int next2 = manager.acquireId();
         
         // Order of recycling depends on implementation (likely LIFO or FIFO)
-        Set<Long> recycled = Set.of(next1, next2);
+        Set<Integer> recycled = Set.of(next1, next2);
         assertTrue(recycled.contains(id1));
         assertTrue(recycled.contains(id2));
     }

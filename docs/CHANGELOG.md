@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.67.0] - 2026-05-26
+
+### Added
+- **Intelligent Animal Behavior**: Refined `AnimalMovementSystem` to use informed decision-making based on sensed environment.
+- **Predatory/Prey Heuristics**: Animals now prioritize fleeing from significant threats (>50% hunt chance) and moving towards identified prey.
+- **Directional Movement**: Implemented `moveTowards` and `moveAwayFrom` logic that respects animal speed and grid boundaries.
+- **Data-Driven Senses**: Added `visionRadius` and `hearingRadius` to `species.properties` for all animal types.
+- **Sense Components**: Animals are now initialized with `SenseComponent` via `NatureComponentFactory` based on their species-specific sensory capabilities.
+
+## [1.66.0] - 2026-05-26
+
+### Added
+- **Spatial Indexing Framework**: Introduced `SpatialIndex` interface in `island-engine` for efficient proximity queries.
+- **GridSpatialIndex**: High-performance grid-based spatial index implementation for O(1) cell-level neighbor access.
+- **QuadTree**: Added a generic `QuadTree` utility for future non-grid spatial partitioning.
+- **Animal Sensing**: Integrated `SpatialIndex` into `AnimalMovementSystem` in `island-nature`, enabling animals with `SenseComponent` to perceive nearby prey.
+
+### Fixed
+- **SimCity**: Fixed `CityMap.getNode()` which was returning `Optional.empty()`, breaking relative neighbor lookups.
+
+## [1.65.0] - 2026-05-26
+
+### Added
+- **Performance Benchmarking**: Expanded JMH benchmarks to cover `island-simcity` domain logic.
+- **SimCity Benchmarks**: Added comprehensive benchmarks for `ConnectivityService` (BFS propagation), `PopulationService`, `PollutionService`, `ZoningService`, and `EconomySystem`.
+- **Benchmark Coverage**: Supports varying map sizes (20x20 to 100x100) and resident densities (1 to 20 per tile) to identify scalability bottlenecks.
+
+### Changed
+- **Dependency Management**: Updated project version to 1.65.0. Added `island-simcity` dependency to `island-benchmarks`.
+
 ## [1.64.0] - 2026-05-26
 
 ### Added

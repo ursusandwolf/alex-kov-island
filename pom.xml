@@ -6,7 +6,7 @@
 
     <groupId>com.island</groupId>
     <artifactId>island-simulator-parent</artifactId>
-    <version>1.63.0</version>
+    <version>1.67.0</version>
     <packaging>pom</packaging>
 
     <name>Island Ecosystem Simulator - Parent</name>

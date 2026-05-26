@@ -72,6 +72,11 @@ public interface SimulationWorld<T extends Mortal> extends Tickable {
     default void onEntityRemoved(T entity) { }
 
     /**
+     * Gets the spatial index for efficient entity search.
+     */
+    SpatialIndex<T> getSpatialIndex();
+
+    /**
      * Gets the event bus associated with this world.
      */
     EventBus getEventBus();

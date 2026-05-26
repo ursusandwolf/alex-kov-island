@@ -7,6 +7,7 @@ import com.island.nature.entities.components.GrowthComponent;
 import com.island.nature.entities.components.MetabolismComponent;
 import com.island.nature.entities.components.MovementComponent;
 import com.island.nature.entities.components.ReproductionComponent;
+import com.island.nature.entities.components.SenseComponent;
 import com.island.nature.entities.core.Animal;
 import com.island.nature.entities.core.AnimalType;
 import com.island.nature.entities.core.Biomass;
@@ -24,6 +25,13 @@ public class NatureComponentFactory {
     public List<Component> createAnimalComponents(AnimalType type, Animal animal) {
         List<Component> components = new ArrayList<>();
         components.add(new MovementComponent());
+
+        if (type.getVisionRadius() > 0 || type.getHearingRadius() > 0) {
+            components.add(SenseComponent.builder()
+                    .visionRadius(type.getVisionRadius())
+                    .hearingRadius(type.getHearingRadius())
+                    .build());
+        }
         
         // Base metabolism calculation moved to component initialization
         long baseMetabolism = (type.getMaxEnergy() * animal.getConfig().getBaseMetabolismBP()) / animal.getConfig().getScale10K();
