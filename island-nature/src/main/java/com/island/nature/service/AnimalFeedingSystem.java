@@ -33,6 +33,14 @@ public class AnimalFeedingSystem extends NatureEntitySystem {
     private final SpeciesRegistry speciesRegistry;
     private final HuntingStrategy huntingStrategy;
 
+    private static final ThreadLocal<Scratchpad> SCRATCHPAD = ThreadLocal.withInitial(Scratchpad::new);
+
+    private static class Scratchpad {
+        final List<Animal> packHunters = new ArrayList<>(32);
+        final List<Animal> soloHunters = new ArrayList<>(64);
+        final PreyProvider preyProvider = new PreyProvider();
+    }
+
     public AnimalFeedingSystem(NatureWorld world, AnimalFactory animalFactory,
                                InteractionProvider interactionMatrix,
                                SpeciesRegistry speciesRegistry, HuntingStrategy huntingStrategy,
@@ -61,58 +69,58 @@ public class AnimalFeedingSystem extends NatureEntitySystem {
 
     @Override
     protected void doProcessCell(Cell cell, int tickCount) {
-        // We override doProcessCell to handle pack hunting logic which requires group processing
-        processPredators(cell, tickCount);
-        processHerbivores(cell, tickCount);
+        Scratchpad scratch = SCRATCHPAD.get();
+        processPredators(cell, tickCount, scratch);
+        processHerbivores(cell, tickCount, scratch);
     }
 
-    private void processPredators(Cell node, int tickCount) {
-        List<Animal> packHunters = new ArrayList<>();
-        List<Animal> soloHunters = new ArrayList<>();
+    private void processPredators(Cell node, int tickCount, Scratchpad scratch) {
+        scratch.packHunters.clear();
+        scratch.soloHunters.clear();
 
         node.forEachPredator(p -> {
             if (p.getAnimalType().isPackHunter()) {
-                packHunters.add(p);
+                scratch.packHunters.add(p);
             } else {
                 if (p.isAlive() && shouldAct(p, AnimalType.Action.FEED, tickCount)) {
-                    soloHunters.add(p);
+                    scratch.soloHunters.add(p);
                 }
             }
         });
 
         // Process solo hunters
-        for (Animal predator : soloHunters) {
+        for (Animal predator : scratch.soloHunters) {
             if (predator.isAlive()) {
-                tryEat(predator, node);
+                tryEat(predator, node, scratch);
             }
         }
 
         // Process pack hunters
-        if (packHunters.size() >= config.getWolfPackMinSize()) {
-            processPackHunting(packHunters, node);
+        if (scratch.packHunters.size() >= config.getWolfPackMinSize()) {
+            processPackHunting(scratch.packHunters, node, scratch);
         } else {
-            for (Animal wolf : packHunters) {
+            for (Animal wolf : scratch.packHunters) {
                 if (wolf.isAlive() && shouldAct(wolf, AnimalType.Action.FEED, tickCount)) {
-                    tryEat(wolf, node);
+                    tryEat(wolf, node, scratch);
                 }
             }
         }
     }
 
-    private void processHerbivores(Cell node, int tickCount) {
+    private void processHerbivores(Cell node, int tickCount, Scratchpad scratch) {
         node.forEachHerbivoreSampled(config.getFeedingLodLimit(), getRandom(), herbivore -> {
             if (herbivore.isAlive() && shouldAct(herbivore, AnimalType.Action.FEED, tickCount)) {
-                tryEat(herbivore, node);
+                tryEat(herbivore, node, scratch);
             }
         });
     }
 
-    private void processPackHunting(List<Animal> pack, Cell node) {
+    private void processPackHunting(List<Animal> pack, Cell node, Scratchpad scratch) {
         if (pack.isEmpty()) {
             return;
         }
         
-        PreyProvider packPreyProvider = new PreyProvider(node, interactionMatrix, 0, protectionMap, true, getRandom());
+        scratch.preyProvider.update(node, interactionMatrix, 0, protectionMap, true, getRandom());
         int maxKills = Math.max(1, pack.size() / 2);
         int kills = 0;
         int attempts = 0;
@@ -120,7 +128,7 @@ public class AnimalFeedingSystem extends NatureEntitySystem {
 
         while (kills < maxKills && attempts < maxAttempts) {
             attempts++;
-            Organism preyCandidate = huntingStrategy.selectPackPrey(pack, packPreyProvider);
+            Organism preyCandidate = huntingStrategy.selectPackPrey(pack, scratch.preyProvider);
             if (preyCandidate != null) {
                 ConsumableComponent consumable = preyCandidate.getComponent(ConsumableComponent.class);
                 if (consumable != null && consumable.isAnimal()) {
@@ -139,7 +147,7 @@ public class AnimalFeedingSystem extends NatureEntitySystem {
                                         wolf.addEnergy(gainPerWolf);
                                     }
                                 }
-                                packPreyProvider.markAsEaten(actualPrey);
+                                scratch.preyProvider.markAsEaten(actualPrey);
                                 animalFactory.releaseAnimal(actualPrey);
                                 kills++;
                             }
@@ -158,12 +166,12 @@ public class AnimalFeedingSystem extends NatureEntitySystem {
         }
     }
 
-    private void tryEat(Animal consumer, Cell node) {
+    private void tryEat(Animal consumer, Cell node, Scratchpad scratch) {
         if (consumer.getCurrentEnergy() >= consumer.getFoodForSaturation()) {
             return;
         }
 
-        PreyProvider preyProvider = new PreyProvider(node, interactionMatrix, 0, protectionMap, getRandom());
+        scratch.preyProvider.update(node, interactionMatrix, 0, protectionMap, false, getRandom());
         int attempts = 0;
         boolean success = false;
         boolean strikeAttempted = false;
@@ -171,7 +179,7 @@ public class AnimalFeedingSystem extends NatureEntitySystem {
 
         while (consumer.getCurrentEnergy() < consumer.getFoodForSaturation() && attempts < maxAttempts) {
             attempts++;
-            Organism preyCandidate = huntingStrategy.selectPrey(consumer, preyProvider);
+            Organism preyCandidate = huntingStrategy.selectPrey(consumer, scratch.preyProvider);
             if (preyCandidate == null) {
                 break;
             }
@@ -195,7 +203,7 @@ public class AnimalFeedingSystem extends NatureEntitySystem {
                         long gain = consumable.consume(actualPrey.getWeight());
                         if (node.removeEntity(actualPrey)) {
                             consumer.addEnergy(gain);
-                            preyProvider.markAsEaten(actualPrey);
+                            scratch.preyProvider.markAsEaten(actualPrey);
                             animalFactory.releaseAnimal(actualPrey);
                             success = true;
                         }

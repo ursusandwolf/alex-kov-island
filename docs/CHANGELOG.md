@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.63.0] - 2026-05-26
+
+### Optimized
+- **Zero-GC Hot Path**: Eliminated significant object allocations in the simulation hot loop, reducing GC pause times by up to 18x.
+- **ParallelDispatcher**: Replaced `ExecutorService.invokeAll()` with a manual `CountDownLatch` implementation to avoid recurring `List<Future>` allocations.
+- **AnimalFeedingSystem**: Introduced `ThreadLocal` scratchpads for `PreyProvider` and temporary animal lists, removing per-cell and per-animal allocations during feeding logic.
+- **DefaultEventBus**: Optimized event publishing by caching type hierarchies as arrays, avoiding iterator allocations during high-frequency events (birth/death).
+- **PreyProvider**: Refactored to be reusable and mutable, supporting object pooling for zero-allocation prey selection.
+
+### Added
+- Comprehensive Multithreading Profiling Report in `docs/testing/PROFILING_REPORT.md`.
+
 ## [1.62.0] - 2026-05-26
 
 ### Fixed

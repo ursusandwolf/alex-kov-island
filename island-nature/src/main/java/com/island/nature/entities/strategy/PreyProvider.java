@@ -20,13 +20,20 @@ import com.island.nature.model.InteractionProvider;
  * Provider for prey selection within a node using integer arithmetic.
  */
 public class PreyProvider {
-    private final Cell node;
-    private final Configuration config;
-    private final InteractionProvider matrix;
-    private final int currentTick;
-    private final Map<SpeciesKey, Integer> protectionMap;
-    private final boolean isWolfPack;
-    private final RandomProvider random;
+    private Cell node;
+    private Configuration config;
+    private InteractionProvider matrix;
+    private int currentTick;
+    private Map<SpeciesKey, Integer> protectionMap;
+    private boolean isWolfPack;
+    private RandomProvider random;
+
+    private final List<Organism> buffet = new ArrayList<>(64);
+    private final Map<SpeciesKey, Organism> uniquePrey = new HashMap<>(32);
+
+    public PreyProvider() {
+        // For pooling
+    }
 
     public PreyProvider(Cell node, InteractionProvider matrix, 
                         int currentTick, Map<SpeciesKey, Integer> protectionMap, RandomProvider random) {
@@ -36,8 +43,14 @@ public class PreyProvider {
     public PreyProvider(Cell node, InteractionProvider matrix, 
                         int currentTick, Map<SpeciesKey, Integer> protectionMap, 
                         boolean isWolfPack, RandomProvider random) {
+        update(node, matrix, currentTick, protectionMap, isWolfPack, random);
+    }
+
+    public void update(Cell node, InteractionProvider matrix, 
+                       int currentTick, Map<SpeciesKey, Integer> protectionMap, 
+                       boolean isWolfPack, RandomProvider random) {
         this.node = node;
-        this.config = node.getConfig();
+        this.config = node != null ? node.getConfig() : null;
         this.matrix = matrix;
         this.currentTick = currentTick;
         this.protectionMap = protectionMap;
@@ -46,7 +59,7 @@ public class PreyProvider {
     }
 
     public List<Organism> getPreyFor(Animal predator) {
-        List<Organism> buffet = buildBuffet(predator);
+        buildBuffet(predator);
         
         // Strategy: prefer prey that gives more energy relative to its weight/size
         buffet.sort(Comparator.comparingLong(Organism::getWeight).reversed());
@@ -54,11 +67,10 @@ public class PreyProvider {
         return buffet;
     }
 
-    private List<Organism> buildBuffet(Animal predator) {
-        List<Organism> potential = new ArrayList<>();
+    private void buildBuffet(Animal predator) {
+        buffet.clear();
+        uniquePrey.clear();
         boolean canHuntAsPack = isWolfPack && predator.getAnimalType().isPackHunter();
-
-        Map<SpeciesKey, Organism> uniquePrey = new HashMap<>();
 
         // 1. Animals - group by species
         node.forEachAnimal(a -> {
@@ -76,19 +88,18 @@ public class PreyProvider {
             }
         });
 
-        potential.addAll(uniquePrey.values());
+        buffet.addAll(uniquePrey.values());
 
         // 2. Plants/Biomass
         node.forEachEntity(e -> {
             if (e instanceof Biomass b && b.getBiomass() > 0 && matrix.getChance(predator.getSpeciesKey(), b.getSpeciesKey()) > 0) {
                 if (!isPlantProtected(b)) {
-                    potential.add(b);
+                    buffet.add(b);
                 }
             }
         });
         
-        Collections.shuffle(potential);
-        return potential;
+        Collections.shuffle(buffet);
     }
 
     private boolean isPlantProtected(Biomass plant) {

@@ -17,16 +17,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class DefaultEventBus implements EventBus {
     private final Map<Class<?>, List<Consumer<?>>> subscribers = new ConcurrentHashMap<>();
-    private final Map<Class<?>, Set<Class<?>>> typeHierarchyCache = new ConcurrentHashMap<>();
+    private final Map<Class<?>, Class<?>[]> typeHierarchyCache = new ConcurrentHashMap<>();
 
     @Override
     public void publish(Object event) {
         Class<?> eventType = event.getClass();
-        Set<Class<?>> types = typeHierarchyCache.computeIfAbsent(eventType, this::getTypeHierarchy);
+        Class<?>[] types = typeHierarchyCache.computeIfAbsent(eventType, this::getTypeHierarchyArray);
 
         for (Class<?> type : types) {
             List<Consumer<?>> eventSubscribers = subscribers.get(type);
             if (eventSubscribers != null) {
+                // Iterating over CopyOnWriteArrayList is thread-safe and relatively efficient for small lists
                 for (Consumer<?> subscriber : eventSubscribers) {
                     try {
                         @SuppressWarnings("unchecked")
@@ -54,7 +55,7 @@ public final class DefaultEventBus implements EventBus {
         }
     }
 
-    private Set<Class<?>> getTypeHierarchy(Class<?> type) {
+    private Class<?>[] getTypeHierarchyArray(Class<?> type) {
         Set<Class<?>> hierarchy = new HashSet<>();
         Deque<Class<?>> queue = new ArrayDeque<>();
         queue.add(type);
@@ -74,6 +75,6 @@ public final class DefaultEventBus implements EventBus {
                 queue.add(iface);
             }
         }
-        return hierarchy;
+        return hierarchy.toArray(new Class<?>[0]);
     }
 }

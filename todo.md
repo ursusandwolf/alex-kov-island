@@ -10,7 +10,8 @@
 - [x] **Docker Stack**: Multi-stage `Dockerfile` with dependency caching and `docker-compose.yml`.
 - [x] **Frontend Architecture**: Decoupled React layers using TanStack Query, Zustand, and custom hooks.
 ## 🛠 Active Quality Hardening
-- [ ] Increase test coverage for concurrent scenarios.
+- [x] **Zero-GC Hot Path**: Optimize concurrent execution to minimize object allocations (v1.63.0).
+- [x] **Performance Profiling**: Establish multithreaded performance baseline and identify scaling limits.
 - [x] **App Review**: Fix `SIMCITY` snapshot flow in `island-app` (`CityMap.createSnapshot()` returns `null`, breaking REST snapshot, WebSocket broadcast, and snapshot persistence paths).
 - [x] **Persistence**: Prevent snapshot filename collisions in JPA history (`snapshot_yyyyMMdd_HHmmss` is not unique enough; add uniqueness/ID strategy and matching tests).
 - [x] **Lifecycle**: Make simulation restart atomic in `SimulationService` so failed `start()`/`startFromSnapshot()` does not destroy the currently running context.
