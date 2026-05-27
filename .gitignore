@@ -30,9 +30,22 @@ libs/
 .DS_Store
 Thumbs.db
 
+# Frontend
+node_modules/
+dist/
+.vite/
+
 # Temporary files
 *.tmp
 *.temp
 
-# Scripts
-scripts/
+# Runtime data
+data/
+island-app/data/
+*.mv.db
+*.trace.db
+scripts/fix_imports.py
+
+# island-ui deps
+island-ui/node_modules/
+island-ui/dist/

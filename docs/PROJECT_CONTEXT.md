@@ -1,32 +1,29 @@
-# Project Context
+# Project Context: Island Ecosystem Simulator
 
-## Current State
-- **Phase 5: Production Readiness & Quality Hardening (Completed)**:
-    - **GitHub Actions CI**: Automated pipeline established for all modules with enforced JaCoCo coverage (100% checks met).
-    - **SoA Correctness & Performance**: Unified all SoA stores (`Health`, `Age`, `Movement`) on `StampedLock` with optimistic read patterns.
-    - **Engine Coverage**: Increased `island-engine` line coverage to **75%** with robust unit and integration tests.
-    - **Benchmarks**: Extracted JMH benchmarks to a dedicated `island-benchmarks` module.
-    - **Engine Lifecycle Hardening**: Improved `SimulationContext.close()` to ensure clean thread termination.
-- **Phase 4: User Interface, Controls & Persistence (In Progress)**:
-    - **App Module & JPMS**: 
-        - Fixed `ServiceLoader` plugin discovery by providing proper `module-info.java` exports in domain modules.
-        - `island-app` successfully compiles and runs CLI visualizations for loaded domains.
-    - **Spring Boot Readiness**: 
-        - Implemented `pause()`/`resume()`/`getStatus()` in `GameLoop`.
-        - Refactored `IslandSnapshot` for thread-safe immutability.
-        - Configured Jackson Mixins in `island-app` for polymorphic serialization.
-    - **Architecture**: Validated `SimulationEngine` for safe integration into Spring container.
+## Status: Quality Hardening & Battery Optimization (v1.76.0)
+The system is now stable and optimized for mobile/battery-powered development. Recent fixes resolved critical frontend build errors and database locking issues.
 
-## Architecture
-- **Engine**: Decoupled core with SoA-based storage, phase-based scheduling, and robust thread pooling.
-- **Nature**: High-performance ecosystem with predatory and metabolic logic.
-- **SimCity**: Grid-based urban simulation with RCI zones and environmental mechanics.
-- **App**: Spring Boot-managed orchestrator for simulation control and visualization (Readiness achieved).
+### 🎯 Current Focus
+- [DONE] **Frontend Build Fix**: Restored production build capability by fixing missing TS types.
+- [DONE] **Battery Saver Mode**: Reduced simulation load (10x10 grid, 2 threads, 500ms tick) for battery-efficient development.
+- [DONE] **Project Integrity**: Resolved inter-module Maven dependency issues via local installation.
+- [PENDING] **Zero-GC Hot Path Refinement**: Further reduce allocations in SimCity domain logic.
+- [PENDING] **Spatial Indexing**: Implement QuadTree-based neighbor search for non-grid entities.
 
-## Next Steps
-- **Spring Boot Core**:
-    - Implement `SimulationService` for engine orchestration.
-    - Create `SimulationController` for RESTful management.
-- **Web Dashboard**: Build a React-based dashboard for graphical visualization.
-- **WebSocket Feed**: Implement real-time snapshot broadcasting using the new immutable `WorldSnapshot`.
+### 🏗 Architecture Notes
+- **Modular Monolith**: Strict JPMS separation.
+- **ECS/SoA**: High-performance data storage in the engine.
+- **Reactive UI**: Zustand + TanStack Query with Zoom/Pan Canvas.
+- **Persistence**: JPA/H2 file-based storage for simulation history.
 
+### 🧪 Recent Changes (May 27, 2026)
+- **Repo Rename**: Renamed repository to `alex-kov-island`.
+- **Fix**: Added missing `PopulationPoint` interface to `simulation.ts`.
+- **Optimization**: Updated `application.yml` with low-power presets (10x10, 2 threads).
+- **Tooling**: Verified background process management and database lock recovery.
+- **Docs**: Updated CHANGELOG, DOCUMENTATION, and UML to reflect v1.76.0 state.
+
+### 📝 Next Steps
+- [ ] Implement global temperature and moisture cycles (Climate System Phase 2).
+- [ ] Refine "Sense" logic to include seeking water and mating partners.
+- [ ] Expand SimCity benchmarks to cover high-density scenarios.

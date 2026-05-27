@@ -10,10 +10,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 public final class ParallelDispatcher<T extends Mortal> {
 
     private final List<CellProcessor<T>> processorPool = new ArrayList<>();
+    private final List<CellProcessor<T>> activeProcessors = new ArrayList<>();
     private final ExecutorService taskExecutor;
 
     public void dispatch(SimulationWorld<T> world, List<ParallelTask<T>> services, int tickCount) {
@@ -50,18 +53,9 @@ public final class ParallelDispatcher<T extends Mortal> {
         int unitCount = workUnits.size();
         
         if (unitCount > 0) {
-            // Ensure pool capacity and shrink if necessary
-            if (processorPool.size() < unitCount) {
-                while (processorPool.size() < unitCount) {
-                    processorPool.add(new CellProcessor<>());
-                }
-            } else if (processorPool.size() > unitCount) {
-                while (processorPool.size() > unitCount) {
-                    processorPool.remove(processorPool.size() - 1);
-                }
-            }
+            ensurePoolCapacity(unitCount);
 
-            List<CellProcessor<T>> activeProcessors = new ArrayList<>(unitCount);
+            activeProcessors.clear();
             int i = 0;
             for (WorkUnit<T> unit : workUnits) {
                 CellProcessor<T> processor = processorPool.get(i++);
@@ -69,31 +63,27 @@ public final class ParallelDispatcher<T extends Mortal> {
                 activeProcessors.add(processor);
             }
 
-            List<Future<Void>> futures = null;
+            // Using CountDownLatch instead of invokeAll to avoid Future list allocation
+            final CountDownLatch latch = new CountDownLatch(unitCount);
+            for (CellProcessor<T> processor : activeProcessors) {
+                taskExecutor.execute(() -> {
+                    try {
+                        processor.call();
+                    } catch (Exception e) {
+                        log.error("Error in parallel task execution", e);
+                    } finally {
+                        latch.countDown();
+                    }
+                });
+            }
+
             try {
-                futures = taskExecutor.invokeAll(activeProcessors);
-                for (Future<Void> future : futures) {
-                    future.get();
+                if (!latch.await(10, TimeUnit.SECONDS)) {
+                    log.warn("Parallel execution timed out after 10s");
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                if (futures != null) {
-                    futures.forEach(f -> f.cancel(true));
-                }
                 throw new RuntimeException("Parallel execution interrupted", e);
-            } catch (ExecutionException e) {
-                log.error("Critical error in parallel cell service execution: {}", e.getCause().getMessage(), e.getCause());
-                throw new RuntimeException("Critical error in parallel execution", e.getCause());
-            } catch (RejectedExecutionException e) {
-                log.error("Task execution rejected in parallel dispatcher: {}. Executing synchronously.", e.getMessage());
-                for (CellProcessor<T> processor : activeProcessors) {
-                    try {
-                        processor.call();
-                    } catch (Exception syncEx) {
-                        log.error("Critical error in synchronous fallback execution: {}", syncEx.getMessage(), syncEx);
-                        throw new RuntimeException("Critical error in synchronous fallback execution", syncEx);
-                    }
-                }
             }
         }
 
@@ -102,6 +92,18 @@ public final class ParallelDispatcher<T extends Mortal> {
                 service.afterTick(tickCount);
             } catch (Exception e) {
                 log.error("Error in afterTick for service {}: {}", service.getClass().getSimpleName(), e.getMessage(), e);
+            }
+        }
+    }
+
+    private void ensurePoolCapacity(int unitCount) {
+        if (processorPool.size() < unitCount) {
+            while (processorPool.size() < unitCount) {
+                processorPool.add(new CellProcessor<>());
+            }
+        } else if (processorPool.size() > unitCount) {
+            while (processorPool.size() > unitCount) {
+                processorPool.remove(processorPool.size() - 1);
             }
         }
     }

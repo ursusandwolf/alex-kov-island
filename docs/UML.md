@@ -19,6 +19,10 @@ graph TD
         IU[island-util]
     end
 
+    subgraph QA
+        IB[island-benchmarks]
+    end
+
     AL --> NP
     SL --> SP
     NP --> IE
@@ -26,6 +30,8 @@ graph TD
     IE --> IU
     NP --> IU
     SP --> IU
+    IB --> IE
+    IB --> SP
 ```
 
 ## ECS & SoA Architecture (Engine)
@@ -138,25 +144,160 @@ classDiagram
     CityTile "1" *-- "many" SimEntity
 ```
 
-## Spring Boot Integration (Phase 4)
+## Polymorphic Snapshots (Persistence)
+
+```mermaid
+classDiagram
+    class WorldSnapshot {
+        <<interface>>
+        +int getTickCount()
+        +int getWidth()
+        +int getHeight()
+        +Map metrics
+        +getNodeSnapshot(x, y)
+    }
+
+    class IslandSnapshot {
+        -int tickCount
+        -int width
+        -int height
+        -CellSnapshot[][] nodes
+        +IslandSnapshot()
+        +IslandSnapshot(Island)
+    }
+
+    class CitySnapshot {
+        -int tickCount
+        -int width
+        -int height
+        -CityNodeSnapshot[][] nodes
+        +CitySnapshot()
+        +CitySnapshot(CityMap, tick)
+    }
+
+    class WorldSnapshotMixin {
+        <<mixin>>
+        @JsonTypeInfo
+        @JsonSubTypes
+    }
+
+    WorldSnapshot <|.. IslandSnapshot
+    WorldSnapshot <|.. CitySnapshot
+    WorldSnapshotMixin .. WorldSnapshot : registered in ObjectMapper
+```
+
+## Social Effects Strategy (OCP)
+
+```mermaid
+classDiagram
+    class SocialService {
+        -Map~Type, SocialEffectProvider~ providers
+        +spreadEffect(center, radius, power, isEducation)
+    }
+
+    class SocialEffectProvider {
+        <<interface>>
+        +getSupportedType() Type
+        +applyEffect(tile, service)
+    }
+
+    class SchoolEffectProvider {
+        +applyEffect(tile, service)
+    }
+
+    class HospitalEffectProvider {
+        +applyEffect(tile, service)
+    }
+
+    SocialService "1" o-- "many" SocialEffectProvider
+    SocialEffectProvider <|.. SchoolEffectProvider
+    SocialEffectProvider <|.. HospitalEffectProvider
+```
+
+## Spring Boot & React Integration (Phase 4)
 
 ```mermaid
 graph LR
-    subgraph App_Layer
-        SC[SimulationController]
-        SB[SnapshotBroadcaster]
-        SS[SimulationService]
+    subgraph UI_Layer [island-ui (React + Vite)]
+        RD[React Dashboard]
+        RC[HTML5 Canvas]
+        ZS[Zustand Store]
+        TQ[TanStack Query]
+        SW[useSimulationSocket Hook]
+        RD --- ZS
+        RD --- RC
+        RD --- SW
+        RD --- TQ
     end
 
-    subgraph Core_Layer
+    subgraph App_Layer [island-app (Spring Boot)]
+        SC[SimulationController]
+        SS[SimulationService]
+        SB[SimulationBroadcaster]
+        JC[SimulationJacksonConfig]
+        GE[GlobalExceptionHandler]
+    end
+
+    subgraph Core_Layer [island-engine]
         SE[SimulationEngine]
         CX[SimulationContext]
+        GL[GameLoop]
+        NP[NamedSimulationPlugin]
     end
 
-    SC --> SS
-    SS --> SE
-    SS --> CX
-    SB --> CX
-    SB -- WebSocket --> Client[React Dashboard]
-    Client -- REST --> SC
+    RD -- REST/Mutations --> TQ
+    TQ -- API --> SC
+    SW -- STOMP --> SB
+    SC -- Lifecycle --> SS
+    SS -- Registry --> NP
+    SS -- Manages --> SE
+    SE -- Produces --> CX
+    CX -- Provides --> GL
+    GL -- Registers --> SB
+    SB -- Serializes --> WS[WorldSnapshot]
+    WS -- Broadcast --> SW
+    SW -- Updates --> ZS
+    SC -.-> GE
+```
+
+## Frontend Component Architecture (v1.76.0)
+
+```mermaid
+graph TD
+    App[App.tsx]
+    
+    subgraph Layout
+        H[Header]
+    end
+    
+    subgraph SimulationComponents
+        SC[SimulationControls]
+        WC[WorldCanvas]
+        SM[SimulationMetrics]
+        SH[SnapshotHistoryPanel]
+        CD[CellDetails]
+        L[Legend]
+    end
+    
+    subgraph DataLayer
+        US[useSimulationStore - Snapshots]
+        TQ[TanStack Query - Server State]
+        SK[useSimulationSocket]
+        API[simulationApi]
+    end
+    
+    App --> H
+    App --> SC
+    App --> WC
+    App --> SM
+    App --> SH
+    App --> CD
+    App --> L
+    
+    SC --> TQ
+    SH --> TQ
+    SH --> US
+    WC --> US
+    TQ --> API
+    SK --> US
 ```

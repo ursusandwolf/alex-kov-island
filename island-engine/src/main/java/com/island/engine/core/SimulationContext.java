@@ -6,6 +6,7 @@ import com.island.engine.scheduling.GameLoop;
 import com.island.util.common.RandomProvider;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Read-only container that holds all major components of a simulation instance.
@@ -38,9 +39,10 @@ public record SimulationContext<T extends Mortal>(
     @Override
     public void close() {
         gameLoop.stop();
-        executor.shutdown();
         try {
-            if (!executor.awaitTermination(2, java.util.concurrent.TimeUnit.SECONDS)) {
+            boolean stopped = gameLoop.awaitStop(2, TimeUnit.SECONDS);
+            executor.shutdown();
+            if (!stopped || !executor.awaitTermination(2, TimeUnit.SECONDS)) {
                 executor.shutdownNow();
             }
         } catch (InterruptedException e) {

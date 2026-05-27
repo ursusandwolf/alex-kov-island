@@ -8,11 +8,14 @@ import com.island.engine.model.Mortal;
 import com.island.engine.model.Tickable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CancellationException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BooleanSupplier;
 import lombok.Getter;
@@ -42,6 +45,7 @@ public class GameLoop<T extends Mortal> {
     private final List<ScheduledTask> recurringTasks = new ArrayList<>();
     private final Queue<ScheduledTask> pendingTasks = new ConcurrentLinkedQueue<>();
     
+    @Getter
     private final long tickDurationMs;
     @Getter
     private final ExecutorService taskExecutor;
@@ -69,10 +73,6 @@ public class GameLoop<T extends Mortal> {
 
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final AtomicBoolean paused = new AtomicBoolean(false);
-
-    public enum SimulationStatus {
-        IDLE, RUNNING, PAUSED
-    }
 
     public SimulationStatus getStatus() {
         if (!running.get()) return SimulationStatus.IDLE;
@@ -154,9 +154,6 @@ public class GameLoop<T extends Mortal> {
     public void stop() {
         if (running.compareAndSet(true, false)) {
             log.info("Stopping GameLoop...");
-            if (loopTask != null) {
-                loopTask.cancel(true);
-            }
         }
     }
 
@@ -165,6 +162,23 @@ public class GameLoop<T extends Mortal> {
      */
     public boolean isRunning() {
         return running.get();
+    }
+
+    public boolean awaitStop(long timeout, TimeUnit unit) throws InterruptedException {
+        Future<?> currentLoopTask = loopTask;
+        if (currentLoopTask == null) {
+            return true;
+        }
+        try {
+            currentLoopTask.get(timeout, unit);
+            return true;
+        } catch (TimeoutException e) {
+            return false;
+        } catch (ExecutionException e) {
+            return true;
+        } catch (CancellationException e) {
+            return true;
+        }
     }
 
     /**
@@ -179,6 +193,7 @@ public class GameLoop<T extends Mortal> {
      * </p>
      */
     public void runTick() {
+        log.trace("Simulation tick: {}", tickCount);
         tickCount++;
         
         // Drain pending tasks into the main list

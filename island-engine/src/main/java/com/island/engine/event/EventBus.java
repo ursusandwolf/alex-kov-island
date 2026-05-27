@@ -1,6 +1,7 @@
 package com.island.engine.event;
 
 import com.island.engine.core.EngineAPI;
+import com.island.engine.internal.DefaultEventBus;
 import java.util.function.Consumer;
 
 /**
@@ -28,7 +29,7 @@ public interface EventBus {
      * @return A new EventBus instance.
      */
     static EventBus create() {
-        return new com.island.engine.internal.DefaultEventBus();
+        return new DefaultEventBus();
     }
 
     /**

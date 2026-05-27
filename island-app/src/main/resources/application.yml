@@ -1,0 +1,59 @@
+spring:
+  profiles:
+    active: nature
+  datasource:
+    url: jdbc:h2:file:./data/simulations_db;DB_CLOSE_ON_EXIT=FALSE
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+server:
+  port: 8080
+
+sim:
+  width: 10
+  height: 10
+  threads: 2
+  tickMs: 500
+  broadcast-interval: 2
+  broadcast-rate-ms: 500
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+
+---
+spring:
+  config:
+    activate:
+      on-profile: nature
+sim:
+  width: 10
+  height: 10
+
+---
+spring:
+  config:
+    activate:
+      on-profile: simcity
+sim:
+  width: 8
+  height: 8
+  tickMs: 1000

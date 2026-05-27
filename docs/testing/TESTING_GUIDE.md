@@ -51,4 +51,17 @@ mvn test -pl island-engine            # Только тесты движка
 mvn jacoco:report                     # Сгенерировать отчет о покрытии
 ```
 
+## Профилирование многопоточности
+
+Для изменений в scheduler, lifecycle, snapshotting или параллельных сервисах code review должен включать не только тесты, но и замеры.
+
+Базовый сценарий:
+
+```bash
+mvn spring-boot:run -pl island-app -Dspring-boot.run.arguments=--sim.threads=4
+bash scripts/profile-multithreading.sh http://127.0.0.1:8080 30 /tmp/profile_threads_4.csv
+```
+
+Полный workflow для `threads=1/2/4/8` описан в [MULTITHREAD_PROFILING.md](MULTITHREAD_PROFILING.md).
+
 Отчет о покрытии будет доступен в `target/site/jacoco/index.html` соответствующего модуля. Мы стремимся к покрытию критической логики не менее 80%.

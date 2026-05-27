@@ -78,7 +78,7 @@ public abstract class Organism implements Poolable, Entity {
                 ageStorage.set(entityId, fallbackAge, fallbackMaxLifespan);
             }
             if (movementStorage != null) {
-                movementStorage.set(entityId, fallbackSpeed);
+                movementStorage.set(entityId, fallbackSpeed, fallbackSpeed);
             }
         }
     }
@@ -281,7 +281,7 @@ public abstract class Organism implements Poolable, Entity {
     public void setSpeed(int speed) {
         this.fallbackSpeed = speed;
         if (entityId != -1 && movementStorage != null) {
-            movementStorage.setSpeed(entityId, speed);
+            movementStorage.set(entityId, speed, speed);
         }
     }
 }

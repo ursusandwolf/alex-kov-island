@@ -1,5 +1,7 @@
 package com.island.engine.core;
 
+import com.island.engine.internal.EntityIdManager;
+
 /**
  * Public API for managing unique entity IDs.
  */
@@ -9,6 +11,6 @@ public interface EntityIdProvider {
     void releaseId(int id);
 
     static EntityIdProvider create() {
-        return new com.island.engine.internal.EntityIdManager();
+        return new EntityIdManager();
     }
 }

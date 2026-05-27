@@ -1,6 +1,8 @@
 package com.island.engine.ecs;
 
 import com.island.engine.core.EngineAPI;
+import com.island.engine.internal.ArrayComponentStore;
+import com.island.engine.internal.DefaultComponentStore;
 import java.util.BitSet;
 
 /**
@@ -12,14 +14,14 @@ public interface ComponentStore {
      * Creates a default map-based component store.
      */
     static ComponentStore createDefault(ComponentRegistry registry) {
-        return new com.island.engine.internal.DefaultComponentStore(registry);
+        return new DefaultComponentStore(registry);
     }
 
     /**
      * Creates a high-performance array-based component store.
      */
     static ComponentStore createArray(ComponentRegistry registry) {
-        return new com.island.engine.internal.ArrayComponentStore(registry);
+        return new ArrayComponentStore(registry);
     }
 
     <C extends Component> void add(C component);

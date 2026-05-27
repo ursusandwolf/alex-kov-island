@@ -1,5 +1,7 @@
 package com.island.nature.entities;
 
+import com.island.engine.ecs.ComponentRegistry;
+import com.island.nature.config.Configuration;
 import com.island.nature.entities.predators.Chameleon;
 import java.util.HashMap;
 import org.junit.jupiter.api.Test;
@@ -14,7 +16,7 @@ public class ChameleonTest {
     @Test
     void testChameleonInvisibilityRate() {
         AnimalType type = AnimalType.builder()
-                .config(new com.island.nature.config.Configuration())
+                .config(new Configuration())
                 .speciesKey(new SpeciesKey("chameleon", false))
                 .typeName("chameleon")
                 .weight((long) (0.1 * SimulationConstants.SCALE_1M))
@@ -30,7 +32,7 @@ public class ChameleonTest {
                 .settlementRange((long) (0.2 * SimulationConstants.SCALE_1M))
                 .build();
                 
-        Chameleon chameleon = new Chameleon(type, new DefaultRandomProvider(), new com.island.engine.ecs.ComponentRegistry());
+        Chameleon chameleon = new Chameleon(type, new DefaultRandomProvider(), new ComponentRegistry());
 
         int protectedCount = 0;
         int iterations = 10000;

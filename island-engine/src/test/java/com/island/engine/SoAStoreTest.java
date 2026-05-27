@@ -92,22 +92,26 @@ class SoAStoreTest {
     @DisplayName("MovementSoAStore: Basic set and get")
     void movementStore_basic_ops() {
         MovementSoAStore store = new MovementSoAStore(10);
-        store.set(1, 3);
+        store.set(1, 3, 5);
         assertEquals(3, store.getSpeed(1));
+        assertEquals(5, store.getRange(1));
         
-        store.setSpeed(1, 4);
+        store.set(1, 4, 6);
         assertEquals(4, store.getSpeed(1));
+        assertEquals(6, store.getRange(1));
         
         // Out of bounds
         assertEquals(0, store.getSpeed(100));
+        assertEquals(0, store.getRange(100));
     }
 
     @Test
     @DisplayName("MovementSoAStore: Expansion")
     void movementStore_expansion() {
         MovementSoAStore store = new MovementSoAStore(2);
-        store.set(5, 2);
+        store.set(5, 2, 3);
         assertEquals(2, store.getSpeed(5));
+        assertEquals(3, store.getRange(5));
     }
 
     @Test

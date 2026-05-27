@@ -5,6 +5,7 @@ import com.island.engine.core.SimulationNode;
 import com.island.engine.core.SimulationWorld;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
@@ -27,11 +28,37 @@ public class CityTile implements SimulationNode<SimEntity> {
     @Getter @Setter private int airPollution = 0;
     @Getter @Setter private int waterPollution = 0;
     @Getter @Setter private int desirability = 0;
+    private final AtomicInteger educationLevel = new AtomicInteger(0);
+    private final AtomicInteger healthLevel = new AtomicInteger(0);
 
     public CityTile(int x, int y, SimulationWorld<SimEntity> world) {
         this.x = x;
         this.y = y;
         this.world = world;
+    }
+
+    public int getEducationLevel() {
+        return educationLevel.get();
+    }
+
+    public void setEducationLevel(int level) {
+        educationLevel.set(level);
+    }
+
+    public void addEducationLevel(int delta) {
+        educationLevel.addAndGet(delta);
+    }
+
+    public int getHealthLevel() {
+        return healthLevel.get();
+    }
+
+    public void setHealthLevel(int level) {
+        healthLevel.set(level);
+    }
+
+    public void addHealthLevel(int delta) {
+        healthLevel.addAndGet(delta);
     }
 
     @Override

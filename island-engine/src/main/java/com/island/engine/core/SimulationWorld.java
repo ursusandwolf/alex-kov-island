@@ -28,6 +28,14 @@ public interface SimulationWorld<T extends Mortal> extends Tickable {
     Optional<SimulationNode<T>> getNode(SimulationNode<T> current, int dx, int dy);
 
     /**
+     * Gets a specific node by relative coordinates.
+     * @return null if coordinates are out of bounds.
+     */
+    default SimulationNode<T> getNodeOrNull(SimulationNode<T> current, int dx, int dy) {
+        return getNode(current, dx, dy).orElse(null);
+    }
+
+    /**
      * Moves an entity between nodes.
      * @return true if movement was successful.
      */
@@ -62,6 +70,11 @@ public interface SimulationWorld<T extends Mortal> extends Tickable {
      * Notifies the world that an entity has been removed from a node.
      */
     default void onEntityRemoved(T entity) { }
+
+    /**
+     * Gets the spatial index for efficient entity search.
+     */
+    SpatialIndex<T> getSpatialIndex();
 
     /**
      * Gets the event bus associated with this world.

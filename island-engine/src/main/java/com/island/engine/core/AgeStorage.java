@@ -1,5 +1,7 @@
 package com.island.engine.core;
 
+import com.island.engine.internal.AgeSoAStore;
+
 /**
  * Public API for high-performance age data storage.
  */
@@ -12,6 +14,6 @@ public interface AgeStorage {
     void setMaxLifespan(int entityId, int maxLifespan);
 
     static AgeStorage create(int initialCapacity) {
-        return new com.island.engine.internal.AgeSoAStore(initialCapacity);
+        return new AgeSoAStore(initialCapacity);
     }
 }

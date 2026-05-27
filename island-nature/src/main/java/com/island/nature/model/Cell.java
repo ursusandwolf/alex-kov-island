@@ -115,15 +115,15 @@ public class Cell implements SimulationNode<Organism> {
 
     @Override
     public void forEachEntity(Consumer<Organism> action) {
-        List<Organism> all;
+        List<Organism> entities;
         long stamp = lock.readLock();
         try {
-            all = new ArrayList<>(container.getEntityCount());
-            container.forEachEntity(all::add);
+            entities = new ArrayList<>(getEntityCountInternal());
+            container.forEachEntity(entities::add);
         } finally {
             lock.unlockRead(stamp);
         }
-        all.forEach(action);
+        entities.forEach(action);
     }
 
     @Override
@@ -277,25 +277,30 @@ public class Cell implements SimulationNode<Organism> {
     }
 
     public void forEachAnimal(Consumer<Animal> action) {
-        List<Animal> all;
+        List<Animal> animals;
         long stamp = lock.readLock();
         try {
-            all = container.getAllAnimals();
+            animals = container.getAllAnimals();
         } finally {
             lock.unlockRead(stamp);
         }
-        all.forEach(action);
+        animals.forEach(action);
     }
 
     public void forEachAnimalSampled(SamplingContext context, Consumer<Animal> action) {
-        List<Animal> all;
+        List<Animal> animals;
         long stamp = lock.readLock();
         try {
-            all = container.getAllAnimals();
+            animals = container.getAllAnimals();
         } finally {
             lock.unlockRead(stamp);
         }
-        SamplingUtils.forEachSampled(all, context, action);
+
+        if (animals.size() <= context.getLimit()) {
+            animals.forEach(action);
+        } else {
+            SamplingUtils.forEachSampled(animals, context, action);
+        }
     }
 
     public void forEachPredator(Consumer<Animal> action) {
@@ -327,7 +332,12 @@ public class Cell implements SimulationNode<Organism> {
         } finally {
             lock.unlockRead(stamp);
         }
-        SamplingUtils.forEachSampled(herbivores, limit, random, action);
+
+        if (herbivores.size() <= limit) {
+            herbivores.forEach(action);
+        } else {
+            SamplingUtils.forEachSampled(herbivores, limit, random, action);
+        }
     }
 
     public Animal getRandomAnimalByType(AnimalType type, RandomProvider random) {

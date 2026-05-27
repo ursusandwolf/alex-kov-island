@@ -2,6 +2,7 @@ package com.island.simcity.service;
 
 import com.island.engine.ecs.Component;
 import com.island.engine.ecs.ComponentRegistry;
+import com.island.engine.scheduling.Phase;
 import com.island.simcity.entities.SimEntity;
 import com.island.simcity.entities.components.BuildingComponent;
 import com.island.simcity.entities.components.PopulationComponent;
@@ -45,6 +46,16 @@ public class PopulationService extends AbstractSimCityService {
     private final CityMap map;
     private final ComponentRegistry registry;
     private final AtomicInteger totalPopulation = new AtomicInteger(0);
+
+    @Override
+    public Phase phase() {
+        return Phase.SIMULATION;
+    }
+
+    @Override
+    public int priority() {
+        return 100; // First in SIMULATION
+    }
 
     @Override
     public List<Class<? extends Component>> readComponents() {
@@ -120,12 +131,18 @@ public class PopulationService extends AbstractSimCityService {
                 
                 pop.updateHappiness(baseHappinessDelta);
                 
+                // Death and migration logic
+                int survivalThreshold = pop.getHealth() < 30 ? DEATH_THRESHOLD + 10 : DEATH_THRESHOLD;
                 if (pop.getHappiness() < LEAVE_CITY_THRESHOLD && tickCount % 2 == 0) {
                     entity.die(); // Leaves the city
                     map.addAlert("Residents leaving: Low Happiness");
+                } else if (pop.getHappiness() < survivalThreshold) {
+                    entity.die();
                 }
                 
-                if (pop.getAge() > MAX_AGE) {
+                // Dynamic life expectancy
+                int effectiveMaxAge = MAX_AGE + (pop.getHealth() - 50) / 2;
+                if (pop.getAge() > effectiveMaxAge || (pop.getHealth() <= 0 && tickCount % 5 == 0)) {
                     entity.die();
                 }
             } else if (building != null && building.getType() == BuildingComponent.Type.RESIDENTIAL) {

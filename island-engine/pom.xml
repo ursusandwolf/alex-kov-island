@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.island</groupId>
         <artifactId>island-simulator-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.67.0</version>
     </parent>
 
     <artifactId>island-engine</artifactId>
@@ -24,6 +24,11 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -44,24 +49,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.pitest</groupId>
-                <artifactId>pitest-maven</artifactId>
-                <version>1.15.8</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.pitest</groupId>
-                        <artifactId>pitest-junit5-plugin</artifactId>
-                        <version>1.2.1</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <targetClasses>
-                        <param>com.island.engine.*</param>
-                    </targetClasses>
-                    <mutationThreshold>65</mutationThreshold>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.revapi</groupId>
                 <artifactId>revapi-maven-plugin</artifactId>

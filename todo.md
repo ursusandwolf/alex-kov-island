@@ -1,64 +1,28 @@
 # Island Ecosystem Simulator: Roadmap & TODO
 
-## 🚀 Phase 1: Architectural Foundation (Completed)
-- [x] **Vector 1: Event-Driven Architecture**
-- [x] **Vector 2: ECS (Entity-Component-System) Evolution**
+## 🚀 Architectural Milestones (Completed)
+- [x] **Event-Driven Core**: Decoupled domain logic using `EventBus`.
+- [x] **ECS Evolution**: Advanced Entity-Component-System with SoA (Struct of Arrays) for performance.
+- [x] **Parallelism**: `SystemExecutionGraph` and `ParallelDispatcher` for concurrent simulation phases.
+- [x] **Modular Isolation**: Full JPMS integration with strict package exports.
+- [x] **Observability**: Prometheus metrics, Spring Boot Actuator, and SpringDoc OpenAPI.
+- [x] **Hardened Persistence**: JPA/H2 file-based storage for simulation history and snapshots.
+- [x] **Docker Stack**: Multi-stage `Dockerfile` with dependency caching and `docker-compose.yml`.
+- [x] **Frontend Architecture**: Decoupled React layers with Recharts dynamics (v1.69.0).
+## 🛠 Active Quality Hardening
+- [x] **Zero-GC Hot Path**: Optimize concurrent execution to minimize object allocations (v1.63.0).
+- [x] **Performance Profiling**: Establish multithreaded performance baseline and identify scaling limits.
+- [x] **Mutation Testing**: Setup PITest in CI pipeline to verify test effectiveness (v1.64.0).
+- [x] **Spatial Indexing**: O(1) neighbor search using Spatial Hashing (v1.65.0).
+- [x] **Benchmarking**: Expand JMH suites to cover SimCity domain logic (v1.66.0).
+- [x] **App Review**: Fix `SIMCITY` snapshot flow in `island-app`
+- [x] **Persistence**: Prevent snapshot filename collisions
+- [x] **Lifecycle**: Make simulation restart atomic
 
-## 🚀 Sprint 3: Advanced ECS & Performance (Completed)
-- [x] **Task 1: System Execution Graph**
-    - [x] Update `EntitySystem` to declare read/write components.
-    - [x] Implement `SystemExecutionGraph` for static dependency resolution.
-    - [x] Group independent systems for parallel execution.
-- [x] **Task 2: ECS Archetypes**
-    - [x] Implement `EntityArchetype` (immutable set of component classes).
-    - [x] Refactor `EntityContainer` and `Cell` to group entities logically by archetype.
-    - [x] Optimize `EntityQuery` to match and fetch archetypes in O(1).
-- [x] **Task 3: Final Architectural Cleanup**
-    - [x] Category 4: ConsumableComponent handles biomass consumption (remove `instanceof Biomass` in `AnimalFeedingSystem`).
-    - [x] Category 5: Move growth logic fully from `Biomass.grow` to `BiomassGrowthSystem`.
-    - [x] Apply node narrowing and typed event patterns to the SimCity module.
-- [x] **Task 4: Performance Benchmarking & GC Optimization**
-
-## 🛠 Immediate Technical Debt & Bug Fixes
-- [x] **Technical Debt: NaturePlugin Assembly**
-    - [x] Refactor `NaturePlugin` constructor to use a cleaner DI-like approach or Factory for domain context assembly.
-- [x] **Code Quality: Dead Code Removal**
-    - [x] Remove empty/unused `process()` overrides in ECS systems.
-- [x] **Architecture: Test Organization**
-- [x] **Engine: EventBus Improvements**
-
-## 🛠 Code Review Fixes (May 2026)
-- [x] **Engine: Concurrency Modernization**
-    - [x] Refactor `ParallelDispatcher` to use `Callable` and `ExecutorService.invokeAll()` instead of `CountDownLatch`.
-    - [x] Update `GameLoop` to use `taskExecutor.submit()` instead of `new Thread()`.
-- [x] **Code Quality: Checkstyle & Best Practices**
-    - [x] Resolve Checkstyle violations (662 errors) or adjust `checkstyle.xml` to match project conventions.
-    - [x] Mark internal engine classes (e.g., `EntityIdManager`, `PhaseScheduler`) as `final` where applicable.
-
-## 📈 Phase 2: Optimization & Scalability
-- [x] **Vector 3: Dynamic Load Balancing**
-    - [x] Implement `DynamicChunkingStrategy`.
-    - [x] Add monitoring for thread load per chunk.
-- [x] **Performance Tuning**
-    - [x] Profiling GC and Object Pools using `java-performance` skill.
-    - [x] Optimize `GridUtils` locking mechanisms.
-
-## 🌍 Phase 3: Global Systems & Integration
-- [x] **Vector 4: Climate & Global Systems**
-    - [x] Implement `ClimateService`.
-    - [x] Add river generation as a natural movement barrier.
-- [x] **Vector 5: Headless & API** (Supported by current Engine API)
-
-## 🛠 Maintenance
-- [x] Increase test coverage for concurrent scenarios.
-- [x] Update `GEMINI.md` with new architectural rules.
-- [x] Review shouldStop semantic change.
-
-## 🖥 Phase 4: User Interface, Controls & Persistence
-- [ ] **Vector 6: Visualization & App Layer**
-    - [ ] Enhance existing terminal-based pseudographics (ASCII/ANSI) to render `WorldSnapshot` as rich as possible in CLI.
-    - [ ] Build a Web-based (Spring Boot + React) dashboard in the `island-app` module for full graphical visualization.
-- [ ] **Vector 7: Real-Time Interaction**
-    - [ ] Allow dynamic pausing, speed adjustments (tick rate scaling), and manual entity spawning via UI (CLI and Web).
-- [ ] **Vector 8: Serialization & Save States**
-    - [ ] Implement serialization to save and load `WorldSnapshot` (JSON or binary formats).
+## 📈 Future Vectors (Backlog)
+- [ ] **Climate System**: Implement global temperature and moisture cycles affecting Nature and SimCity domains.
+- [ ] **Intelligence Phase 2**: Refine "Sense" logic to include seeking water and mating partners.
+- [ ] **Observability Phase 2**: Grafana dashboards and ELK/Loki integration.
+- [ ] **Web UI 2.0**: Implementation of a 3D visualization using Three.js for the world canvas.
+- [ ] **Auth Layer**: Re-introduce Spring Security with JWT/OAuth2 for multi-user simulation isolation.
+- [ ] **Clustering**: Explore gRPC/Akka for distributed simulation across multiple JVM nodes.

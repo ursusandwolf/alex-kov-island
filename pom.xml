@@ -6,7 +6,7 @@
 
     <groupId>com.island</groupId>
     <artifactId>island-simulator-parent</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.67.0</version>
     <packaging>pom</packaging>
 
     <name>Island Ecosystem Simulator - Parent</name>
@@ -19,7 +19,10 @@
         <junit.version>5.9.3</junit.version>
         <slf4j.version>2.0.7</slf4j.version>
         <mockito.version>5.5.0</mockito.version>
-        <jacoco.minimum.coverage>0.50</jacoco.minimum.coverage>
+        <spring-boot.version>3.2.5</spring-boot.version>
+        <jacoco.minimum.coverage>0.65</jacoco.minimum.coverage>
+        <logback.version>1.4.14</logback.version>
+        <jakarta-annotation.version>2.1.1</jakarta-annotation.version>
     </properties>
 
     <modules>
@@ -32,6 +35,14 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Spring Boot BOM -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
@@ -77,16 +88,18 @@
                 <version>${slf4j.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.annotation</groupId>
+                <artifactId>jakarta.annotation-api</artifactId>
+                <version>${jakarta-annotation.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
 
     <build>
         <plugins>
@@ -97,6 +110,7 @@
                 <configuration>
                     <source>21</source>
                     <target>21</target>
+                    <parameters>true</parameters>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -199,6 +213,31 @@
                     <failsOnError>true</failsOnError>
                     <linkXRef>false</linkXRef>
                     <excludes>**/module-info.java</excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>1.15.8</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-junit5-plugin</artifactId>
+                        <version>1.2.1</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <targetClasses>
+                        <param>com.island.*</param>
+                    </targetClasses>
+                    <targetTests>
+                        <param>com.island.*</param>
+                    </targetTests>
+                    <threads>4</threads>
+                    <outputFormats>
+                        <outputFormat>HTML</outputFormat>
+                    </outputFormats>
+                    <mutationThreshold>60</mutationThreshold>
                 </configuration>
             </plugin>
         </plugins>

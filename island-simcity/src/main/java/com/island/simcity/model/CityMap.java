@@ -2,6 +2,8 @@ package com.island.simcity.model;
 
 import com.island.engine.core.SimulationNode;
 import com.island.engine.core.SimulationWorld;
+import com.island.engine.core.SpatialIndex;
+import com.island.engine.core.GridSpatialIndex;
 import com.island.engine.core.WorkUnit;
 import com.island.engine.core.DefaultWorkUnit;
 import com.island.engine.model.WorldSnapshot;
@@ -29,6 +31,8 @@ public class CityMap implements SimulationWorld<SimEntity> {
     @Setter private int resDemand = 50;
     @Setter private int comDemand = 50;
     @Setter private int indDemand = 50;
+    @Setter private int averageEQ = 0;
+    @Setter private int averageHealth = 0;
     @Setter private long lastTickIncome = 0;
     @Setter private long lastTickExpenses = 0;
     @Setter private int taxRate = 15;
@@ -36,12 +40,15 @@ public class CityMap implements SimulationWorld<SimEntity> {
     private final List<String> alerts = new CopyOnWriteArrayList<>();
     private final EventBus eventBus;
     private final ComponentRegistry componentRegistry;
+    private final SpatialIndex<SimEntity> spatialIndex;
+    private int tickCount = 0;
 
     public CityMap(int width, int height, EventBus eventBus, ComponentRegistry registry) {
         this.width = width;
         this.height = height;
         this.eventBus = eventBus;
         this.componentRegistry = registry;
+        this.spatialIndex = new GridSpatialIndex<>(this);
         this.grid = new CityTile[width][height];
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
@@ -52,7 +59,7 @@ public class CityMap implements SimulationWorld<SimEntity> {
         // Initialize neighbors
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                List<com.island.engine.core.SimulationNode<SimEntity>> neighbors = new ArrayList<>();
+                List<SimulationNode<SimEntity>> neighbors = new ArrayList<>();
                 for (int dx = -1; dx <= 1; dx++) {
                     for (int dy = -1; dy <= 1; dy++) {
                         if (dx == 0 && dy == 0) continue;
@@ -83,6 +90,7 @@ public class CityMap implements SimulationWorld<SimEntity> {
     public void onEntityRemoved(SimEntity entity) {}
     @Override
     public void tick(int tickCount) {
+        this.tickCount = tickCount;
         if (money.get() < 0) {
             negativeBalanceTicks++;
             if (negativeBalanceTicks >= 5) {
@@ -109,9 +117,26 @@ public class CityMap implements SimulationWorld<SimEntity> {
         return List.of(new DefaultWorkUnit<>(allTiles));
     }
     @Override
-    public Optional<SimulationNode<SimEntity>> getNode(SimulationNode<SimEntity> current, int dx, int dy) { return Optional.empty(); }
+    public Optional<SimulationNode<SimEntity>> getNode(SimulationNode<SimEntity> current, int dx, int dy) {
+        if (current instanceof CityTile tile) {
+            int tx = tile.getX() + dx;
+            int ty = tile.getY() + dy;
+            if (GridUtils.isValid(tx, ty, width, height)) {
+                return Optional.of(grid[tx][ty]);
+            }
+        }
+        return Optional.empty();
+    }
+    
+    @Override
+    public SpatialIndex<SimEntity> getSpatialIndex() {
+        return spatialIndex;
+    }
+
     @Override
     public boolean moveEntity(SimEntity entity, SimulationNode<SimEntity> from, SimulationNode<SimEntity> to) { return false; }
     @Override
-    public WorldSnapshot createSnapshot() { return null; }
+    public WorldSnapshot createSnapshot() {
+        return new CitySnapshot(this, tickCount);
+    }
 }

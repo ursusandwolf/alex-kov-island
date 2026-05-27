@@ -1,5 +1,6 @@
 package com.island.engine;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -58,7 +59,7 @@ class GameLoopOptimizationTest {
         }
 
         // Verify that processorPool contains exactly 1 processor (since we have 1 work unit)
-        java.lang.reflect.Field poolField = ParallelDispatcher.class.getDeclaredField("processorPool");
+        Field poolField = ParallelDispatcher.class.getDeclaredField("processorPool");
         poolField.setAccessible(true);
         List<?> pool = (List<?>) poolField.get(dispatcher);
         

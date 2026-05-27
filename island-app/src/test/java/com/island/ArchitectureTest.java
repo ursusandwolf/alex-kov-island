@@ -1,5 +1,6 @@
 package com.island;
 
+import com.island.engine.core.InternalEngine;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import org.junit.jupiter.api.Test;
@@ -54,7 +55,7 @@ public class ArchitectureTest {
         // Check for InternalEngine annotation (requires RetentionPolicy.CLASS)
         noClasses().that().resideInAnyPackage("com.island.nature..", "com.island.simcity..")
             .should().dependOnClassesThat()
-            .areAnnotatedWith("com.island.engine.core.InternalEngine")
+            .areAnnotatedWith(InternalEngine.class)
             .check(classes);
     }
 }

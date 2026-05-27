@@ -24,6 +24,8 @@ public final class AnimalType {
     private final long maxEnergy;
     private final int maxPerCell;
     private final int speed;
+    private final int visionRadius;
+    private final int hearingRadius;
     private final int maxLifespan;
     private final Map<SpeciesKey, Integer> huntProbabilities;
     private final boolean isPredator;

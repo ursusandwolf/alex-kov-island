@@ -2,12 +2,14 @@ package com.island.engine;
 
 import com.island.engine.core.SimulationNode;
 import com.island.engine.core.SimulationWorld;
+import com.island.engine.core.SpatialIndex;
 import com.island.engine.core.WorkUnit;
 import com.island.engine.event.EventBus;
 import com.island.engine.model.Mortal;
 import com.island.engine.model.WorldSnapshot;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -34,6 +36,7 @@ class SimulationWorldTest {
             @Override public int getWidth() { return 10; }
             @Override public int getHeight() { return 10; }
             @Override public WorldSnapshot createSnapshot() { return mock(WorldSnapshot.class); }
+            @Override public SpatialIndex<Mortal> getSpatialIndex() { return null; }
             @Override public void tick(int tc) {}
         };
         
@@ -54,6 +57,7 @@ class SimulationWorldTest {
             @Override public int getWidth() { return 0; }
             @Override public int getHeight() { return 0; }
             @Override public WorldSnapshot createSnapshot() { return null; }
+            @Override public SpatialIndex<Mortal> getSpatialIndex() { return null; }
             @Override public EventBus getEventBus() { return null; }
             @Override public void tick(int tc) {}
         };
@@ -67,6 +71,6 @@ class SimulationWorldTest {
 
     // Helper to avoid full mockito dependency if possible, but it's already in dependencies
     private <T> T mock(Class<T> type) {
-        return org.mockito.Mockito.mock(type);
+        return Mockito.mock(type);
     }
 }

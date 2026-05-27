@@ -1,5 +1,6 @@
 package com.island.nature;
 
+import com.island.engine.core.NamedSimulationPlugin;
 import com.island.engine.event.EventBus;
 import com.island.nature.config.Configuration;
 import com.island.nature.model.Island;
@@ -12,6 +13,7 @@ import java.util.concurrent.Executors;
 import com.island.engine.core.SimulationContext;
 import com.island.engine.core.SimulationPlugin;
 import com.island.engine.core.SimulationWorld;
+import com.island.engine.model.WorldSnapshot;
 import com.island.engine.scheduling.GameLoop;
 import com.island.nature.entities.core.AnimalType;
 import com.island.nature.entities.core.Organism;
@@ -21,27 +23,52 @@ import com.island.nature.entities.domain.NatureWorld;
 import com.island.nature.entities.domain.TaskRegistry;
 import com.island.nature.entities.registry.WorldInitializer;
 import com.island.nature.entities.domain.NatureDomainContextFactory;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 /**
  * Plugin implementation for the Nature (Island) simulation.
  */
-public class NaturePlugin implements SimulationPlugin<Organism> {
-    private final Configuration config;
-    private final NatureDomainContext domainContext;
-    private final SimulationView view;
+@Component
+@Getter
+@Slf4j
+public class NaturePlugin implements NamedSimulationPlugin<Organism> {
+    private Configuration config;
+    private NatureDomainContext domainContext;
+    private SimulationView view;
+    private WorldSnapshot initialSnapshot;
 
     public NaturePlugin() {
-        this(Configuration.load());
+        // Default constructor for JPMS and Spring
     }
 
     public NaturePlugin(Configuration config) {
-        this(config, config.isHeadless() ? new HeadlessView() : new ConsoleView());
+        this(config, null);
     }
 
-    public NaturePlugin(Configuration config, SimulationView view) {
-        this.config = config;
-        this.view = view;
-        this.domainContext = NatureDomainContextFactory.create(config);
+    public NaturePlugin(Configuration config, WorldSnapshot initialSnapshot) {
+        this(config, config.isHeadless() ? new HeadlessView() : new ConsoleView(), initialSnapshot);
+    }
+
+    public NaturePlugin(Configuration config, SimulationView view, WorldSnapshot initialSnapshot) {
+        this.config = config != null ? config : Configuration.load();
+        this.view = view != null ? view : (this.config.isHeadless() ? new HeadlessView() : new ConsoleView());
+        this.initialSnapshot = initialSnapshot;
+        this.domainContext = NatureDomainContextFactory.create(this.config);
+    }
+
+    @Override
+    public String getPluginName() {
+        return "nature";
+    }
+
+    @Override
+    public SimulationPlugin<Organism> withConfiguration(int width, int height, WorldSnapshot snapshot) {
+        Configuration newConfig = Configuration.load(); // Or clone existing if needed
+        newConfig.setIslandWidth(width);
+        newConfig.setIslandHeight(height);
+        return new NaturePlugin(newConfig, view, snapshot);
     }
 
     public NatureDomainContext getDomainContext() {
@@ -50,13 +77,20 @@ public class NaturePlugin implements SimulationPlugin<Organism> {
 
     @Override
     public SimulationWorld<Organism> createWorld(EventBus eventBus) {
-        Island island = new Island(domainContext, config.getIslandWidth(), config.getIslandHeight(), eventBus);
-        
+        int width = initialSnapshot != null ? initialSnapshot.getWidth() : config.getIslandWidth();
+        int height = initialSnapshot != null ? initialSnapshot.getHeight() : config.getIslandHeight();
+
+        Island island = new Island(domainContext, width, height, eventBus);
+
         WorldInitializer initializer = new WorldInitializer();
         try (ExecutorService initExecutor = Executors.newSingleThreadExecutor()) {
-            initializer.initialize(island, domainContext.getSpeciesRegistry(), domainContext.getAnimalFactory(), 
-                                   initExecutor, 
-                                   domainContext.getRandomProvider());
+            if (initialSnapshot != null) {
+                initializer.initializeFromSnapshot(island, domainContext.getSpeciesRegistry(), domainContext.getAnimalFactory(), 
+                                                   initialSnapshot, initExecutor, domainContext.getRandomProvider());
+            } else {
+                initializer.initialize(island, domainContext.getSpeciesRegistry(), domainContext.getAnimalFactory(), 
+                                       initExecutor, domainContext.getRandomProvider());
+            }
         }
         island.init();
         island.rebalance(); // Ensure partition reflects initial population
@@ -66,7 +100,7 @@ public class NaturePlugin implements SimulationPlugin<Organism> {
     @Override
     public void registerTasks(GameLoop<Organism> gameLoop, SimulationWorld<Organism> world, EventBus eventBus) {
         NatureWorld natureWorld = (NatureWorld) world;
-        
+
         TaskRegistry taskRegistry = new TaskRegistry(gameLoop, natureWorld, domainContext, domainContext.getInteractionProvider(), 
                                                      domainContext.getAnimalFactory(), domainContext.getSpeciesRegistry(), 
                                                      view, domainContext.getRandomProvider(), eventBus);

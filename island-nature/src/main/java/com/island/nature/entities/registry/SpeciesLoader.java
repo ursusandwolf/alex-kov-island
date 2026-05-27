@@ -65,6 +65,8 @@ public class SpeciesLoader {
         long weight = toScaledLong(props.getProperty(code + ".weight", "1"));
         int maxCount = Math.max(0, Integer.parseInt(props.getProperty(code + ".maxPerCell", "1")));
         int speed = Math.max(0, Integer.parseInt(props.getProperty(code + ".speed", "0")));
+        int visionRadius = Math.max(0, Integer.parseInt(props.getProperty(code + ".visionRadius", "0")));
+        int hearingRadius = Math.max(0, Integer.parseInt(props.getProperty(code + ".hearingRadius", "0")));
         
         boolean isPlant = Boolean.parseBoolean(props.getProperty(code + ".isPlant", "false"));
         boolean isBiomass = Boolean.parseBoolean(props.getProperty(code + ".isBiomass", "false"));
@@ -120,6 +122,7 @@ public class SpeciesLoader {
         AnimalType type = AnimalType.builder()
                 .config(config)
                 .speciesKey(key).typeName(code).weight(weight).maxPerCell(maxCount).speed(speed)
+                .visionRadius(visionRadius).hearingRadius(hearingRadius)
                 .foodForSaturation(food).maxEnergy(food).maxLifespan(lifespan)
                 .huntProbabilities(Collections.unmodifiableMap(preyMap))
                 .isPredator(key.isPredator()).sizeClass(sizeClass)

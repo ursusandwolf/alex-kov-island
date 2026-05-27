@@ -1,122 +1,48 @@
-# Презентация Архитектуры: Island Ecosystem Simulator
+# Architecture Presentation: Island Ecosystem Simulator
 
-Данный документ предназначен для использования во время презентаций и архитектурных ревью. Он содержит наглядную структуру взаимодействия ядра движка и доменных плагинов (на примере NaturePlugin), а также подробное описание каждого слоя.
+## 1. High-Level Modular Design
+The project is split into independent JPMS modules to ensure strict boundary control.
 
-## 1. Концептуальная диаграмма (Pseudo-UML)
-
-```text
-===================================================================================================
-                             [ ENGINE CORE (ЯДРО ДВИЖКА) ]
-===================================================================================================
-
-+-------------------------+                 +-------------------------+
-|  SimulationPlugin<T>    |                 |   SimulationEngine      |
-+-------------------------+                 +-------------------------+
-| + createWorld(EventBus) |                 | - gameLoop: GameLoop    |
-| + registerTasks()       |                 | - world: SimulationWorld|
-| + shouldStop()          |                 | + start()               |
-+-----------^-------------+                 +-----------+-------------+
-            |                                           |
-            |                                           v
-            |                               +-------------------------+
-            |                               |       GameLoop<T>       |
-            |                               +-------------------------+
-            |                               | - scheduler             |
-            |                               | - dispatcher            |
-            |                               | + runTick()             |
-            |                               +-----------+-------------+
-            |                                           |
-            |                                           v
-            |                               +-------------------------+
-            |                               |   SimulationWorld<T>    |
-            |                               +-------------------------+
-            |                               | - eventBus: EventBus    |
-            |                               | + getParallelWorkUnits()|
-            |                               +-----------^-------------+
-            |                                           | 1..*
-            |                                           v
-            |                               +-------------------------+
-            |                               |   SimulationNode<T>     |
-            |                               +-------------------------+
-            |                               | + getEntities()         |
-            |                               | + addEntity()           |
-            |                               +-----------^-------------+
-            |                                           |
-============|===========================================|==========================================
-            |                [ DOMAIN PLUGIN (СЛОЙ БИЗНЕС-ЛОГИКИ - NATURE) ]
-============|===========================================|==========================================
-            |                                           |
-+-----------+-------------+                 +-----------+-------------+
-|      NaturePlugin       |                 |          Island         |
-+-------------------------+                 +-------------------------+
-| + createWorld() : Island|                 | - cells: Cell[][]       |
-| + registerTasks()       |                 | - biomassManager        |
-+-----------+-------------+                 +-----------+-------------+
-            | configures                                | 1..*
-            v                                           v
-+-------------------------+                 +-------------------------+
-|      TaskRegistry       |                 |           Cell          |
-+-------------------------+                 +-------------------------+
-| Registers ECS Systems   |                 | - entityContainer       |
-| into the GameLoop       |                 | + query(EntityQuery)    |
-+-----------+-------------+                 +-----------+-------------+
-            |
-            |   (ECS ARCHITECTURE & SYSTEM EXECUTION GRAPH)
-            v
-+-------------------------+                 +-------------------------+
-|    EntitySystem<T>      |<----------------|   NatureEntitySystem    |
-|       (ENGINE)          |   implements    +-------------------------+
-+-------------------------+                 | - entityQuery           |
-| + readComponents()      |                 | + doProcessCell()       |
-| + writeComponents()     |                 | + process(Organism)     |
-| + processCell()         |                 +-----------^-------------+
-+-------------------------+                             |
-                                                        | extends
-                          +-----------------------------+-----------------------------+
-                          |                             |                             |
-            +-------------+-------------+ +-------------+-------------+ +-------------+-------------+
-            |    AnimalHealthSystem     | |   AnimalFeedingSystem     | |   AnimalMovementSystem    |
-            +---------------------------+ +---------------------------+ +---------------------------+
-            | + process(Organism)       | | + process(Organism)       | | + process(Organism)       |
-            | (Writes: Health, Age)     | | (Writes: Health, Metabo)  | | (Reads: Move, Writes: Met)|
-            +---------------------------+ +---------------------------+ +---------------------------+
+```mermaid
+graph TD
+    A[island-app] --> B[island-engine]
+    A --> C[island-nature]
+    A --> D[island-simcity]
+    C --> B
+    D --> B
+    C -.->|No Dependency| D
 ```
 
----
+- **island-engine**: Domain-agnostic simulation core (ECS, GameLoop, SoA).
+- **island-nature / island-simcity**: Domain plugins implementing specific logic.
+- **island-app**: Spring Boot host for REST, WebSocket, and Persistence.
 
-## 2. Подробное описание для презентации
+## 2. Core Engine Internals
+The engine uses a **Phase-based Scheduler** to manage concurrent execution without race conditions.
 
-### Введение
-Добро пожаловать! Сегодня мы рассмотрим архитектуру нашего симулятора **Island Ecosystem**. Наша главная цель при проектировании состояла в том, чтобы создать **высокопроизводительное, масштабируемое и строго детерминированное ядро**, которое полностью отделено от бизнес-логики (например, правил выживания животных или функционирования города).
+```text
+GameLoop.runTick()
+  ├── Phase.PREPARE (Initialize tick data)
+  ├── Phase.SIMULATION (Parallel System Execution)
+  │     └── ParallelDispatcher (Virtual Threads)
+  └── Phase.POSTPROCESS (Broadcast, Statistics, Persistence)
+```
 
-Архитектура строится на трех китах:
-1. **Плагинная система (Plugin Architecture)**
-2. **Многопоточное планирование фаз (Phase-based Parallel Execution)**
-3. **Паттерн Entity-Component-System (ECS)**
+## 3. Data Flow: Tick to Browser
+1. **Engine**: `GameLoop` completes a tick.
+2. **Broadcast**: `TickBroadcastTask` takes a consistent `WorldSnapshot`.
+3. **Transport**: `SimpMessagingTemplate` pushes snapshot via **WebSocket (STOMP)**.
+4. **Client**: `useSimulationSocket` hook receives data and updates **Zustand store**.
+5. **UI**: `WorldCanvas` re-renders only the changed areas.
 
-### Ядро движка (Engine Core)
-В верхней части диаграммы вы видите ядро. Оно ничего не знает о волках, траве или жителях города.
-*   **SimulationEngine**: Точка входа. Управляет жизненным циклом симуляции.
-*   **SimulationPlugin**: Интерфейс-мост. Любой домен (Nature, SimCity) реализует этот интерфейс, чтобы предоставить движку Фабрику Мира и зарегистрировать задачи.
-*   **GameLoop & PhaseScheduler**: Сердце симуляции. Вместо хаотичного обновления, каждый `tick` разделен на фазы (Prepare, Simulation, Cleanup). Планировщик группирует задачи по фазам.
-*   **SimulationWorld & SimulationNode**: Пространственные абстракции. Мир разбит на ноды (клетки сетки), что позволяет обрабатывать их независимо.
+## 4. Performance: SoA (Structure of Arrays)
+Instead of a list of objects, data is stored in primitive arrays for CPU cache efficiency.
 
-### Доменный плагин (Domain Plugin - Nature)
-Перейдем к нижней части. Это конкретная реализация — природа острова.
-*   **NaturePlugin**: Инициализирует домен, загружает конфигурацию (`SpeciesRegistry`) и создает `Island`.
-*   **Island & Cell**: Конкретные реализации Мира и Ноды. `Cell` содержит `EntityContainer`, который хранит сущности, индексированные для быстрого O(1) доступа.
-*   **TaskRegistry**: Отвечает за инъекцию конкретных систем (Health, Feeding, Movement) в `GameLoop`.
+- **AoS (Traditional)**: `[ {x, y, health}, {x, y, health}, ... ]` -> High Cache Miss.
+- **SoA (Engine)**: `x[], y[], health[]` -> 3x Throughput in benchmarks.
 
-### Паттерн ECS и Система Графа Исполнения (System Execution Graph)
-Самое интересное — это эволюция нашего ECS.
-*   Вместо монолитных сервисов мы используем **EntitySystem**. Каждая система сфокусирована только на одной задаче (например, `AnimalHealthSystem`).
-*   Системы больше не зависят от жестко зашитых типов вроде `instanceof Wolf`. Они декларируют свои зависимости через `readComponents()` и `writeComponents()`.
-*   **SystemExecutionGraph** в ядре (внедряемый в Sprint 3) анализирует эти чтения и записи, строя направленный ациклический граф (DAG). Если `HealthSystem` и `MovementSystem` не конфликтуют по компонентам, движок запускает их параллельно на пуле Virtual Threads с помощью `ParallelDispatcher`. Это максимизирует пропускную способность (TPS) без риска состояния гонки (Race Conditions).
-
-### Резюме
-Такое разделение позволяет нам:
-1. Писать Unit-тесты для ядра без создания сложных моков животных.
-2. Изолированно профилировать и оптимизировать ECS-контейнеры.
-3. Легко добавлять новые модули (например, `SimCityPlugin`) используя ту же многопоточную инфраструктуру.
-
-Спасибо за внимание! Готов ответить на ваши вопросы.
+## 5. Quality Gate
+- **ArchUnit**: Automated enforcement of layer boundaries.
+- **jqwik**: Property-based testing for domain invariants.
+- **PITest**: Mutation testing to ensure test suite effectiveness.
+- **JMH**: Continuous performance tracking.

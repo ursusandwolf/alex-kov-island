@@ -15,8 +15,8 @@
 <!-- island-myplugin/pom.xml -->
 <parent>
     <groupId>com.island</groupId>
-    <artifactId>alex.kov.island</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>island-simulator-parent</artifactId>
+    <version>1.67.0</version>
 </parent>
 <artifactId>island-myplugin</artifactId>
 
