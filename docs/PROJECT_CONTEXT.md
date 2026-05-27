@@ -1,33 +1,28 @@
 # Project Context: Island Ecosystem Simulator
 
-## Status: Frontend Overhaul (v1.75.0)
-The system now features a **Modern, Reactive Frontend** with unified state management, interactive canvas (Zoom/Pan/Tooltips), and a shared UI library with Dark Mode support.
+## Status: Quality Hardening & Battery Optimization (v1.76.0)
+The system is now stable and optimized for mobile/battery-powered development. Recent fixes resolved critical frontend build errors and database locking issues.
 
-## Project Goal
-To provide a high-performance, extensible engine for simulating complex ecosystems and urban environments, leveraging modern Java features and ECS architecture.
+### 🎯 Current Focus
+- [DONE] **Frontend Build Fix**: Restored production build capability by fixing missing TS types.
+- [DONE] **Battery Saver Mode**: Reduced simulation load (10x10 grid, 2 threads, 500ms tick) for battery-efficient development.
+- [DONE] **Project Integrity**: Resolved inter-module Maven dependency issues via local installation.
+- [PENDING] **Zero-GC Hot Path Refinement**: Further reduce allocations in SimCity domain logic.
+- [PENDING] **Spatial Indexing**: Implement QuadTree-based neighbor search for non-grid entities.
 
-## System State (Summary)
-- **Engine**: Stable, **Zero-GC hot path** (v1.63.0+). Mutation score 69% (PITest).
-- **Intelligence**: `AnimalMovementSystem` uses `SpatialIndex` and `SenseComponent` for predatory/prey heuristics.
-- **Performance**: Expanded **JMH benchmarks** cover both Nature (SoA) and SimCity (Connectivity/Population) domains.
-- **Domains**: Nature and SimCity are integrated and performant at 20x20 scale.
-- **Backend**: Spring Boot 3.2.5 (Security disabled) with **Persistent H2 Storage**. Snapshots survive restarts.
-- **Frontend**: Vite + React 18. **Modern Architecture**: Unified TanStack Query + Zustand state, Shared UI library, Interactive Canvas (Zoom/Pan/Tooltips), Dark Mode, and Audio Feedback (v1.75.0).
-- **Infrastructure**: Optimized **multi-stage Dockerfile** with dependency caching. Prometheus pre-configured.
+### 🏗 Architecture Notes
+- **Modular Monolith**: Strict JPMS separation.
+- **ECS/SoA**: High-performance data storage in the engine.
+- **Reactive UI**: Zustand + TanStack Query with Zoom/Pan Canvas.
+- **Persistence**: JPA/H2 file-based storage for simulation history.
 
-## Technical Entry Point
-For detailed architectural patterns, API specs, and implementation standards, refer to:
-👉 **[DOCUMENTATION.md](DOCUMENTATION.md)**
-👉 **[ARCHITECTURE_PRESENTATION.md](ARCHITECTURE_PRESENTATION.md)** (Interview/Demo Guide)
+### 🧪 Recent Changes (May 27, 2026)
+- **Fix**: Added missing `PopulationPoint` interface to `simulation.ts`.
+- **Optimization**: Updated `application.yml` with low-power presets (10x10, 2 threads).
+- **Tooling**: Verified background process management and database lock recovery.
+- **Docs**: Updated CHANGELOG, DOCUMENTATION, and UML to reflect v1.76.0 state.
 
-## Roadmap & Pending Items
-1.  **Observability Phase 2**:
-    *   Implement pre-configured Grafana dashboards for domain-specific metrics.
-    *   Add ELK/Loki for structured logging analysis.
-2.  **Domain Expansion**:
-    *   Develop "Deep Sea" plugin with fluid dynamics and light-based metabolic cycles.
-    *   Implement "Space" plugin for orbital mechanics and resource management.
-3.  **Algorithmic Optimization**:
-    *   [DONE] Implement Spatial Hashing/QuadTree for O(1) neighbor searches in Nature/SimCity.
-    *   [DONE] Refine "Sense" logic to include fleeing from predators and seeking prey.
-    *   Refine "Sense" logic to include seeking water and mating partners.
+### 📝 Next Steps
+- [ ] Implement global temperature and moisture cycles (Climate System Phase 2).
+- [ ] Refine "Sense" logic to include seeking water and mating partners.
+- [ ] Expand SimCity benchmarks to cover high-density scenarios.

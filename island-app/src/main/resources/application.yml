@@ -16,12 +16,12 @@ server:
   port: 8080
 
 sim:
-  width: 20
-  height: 20
-  threads: 4
-  tickMs: 100
-  broadcast-interval: 1
-  broadcast-rate-ms: 100
+  width: 10
+  height: 10
+  threads: 2
+  tickMs: 500
+  broadcast-interval: 2
+  broadcast-rate-ms: 500
 
 management:
   endpoints:
@@ -45,8 +45,8 @@ spring:
     activate:
       on-profile: nature
 sim:
-  width: 20
-  height: 20
+  width: 10
+  height: 10
 
 ---
 spring:
@@ -54,6 +54,6 @@ spring:
     activate:
       on-profile: simcity
 sim:
-  width: 15
-  height: 15
-  tickMs: 200
+  width: 8
+  height: 8
+  tickMs: 1000

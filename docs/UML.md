@@ -260,7 +260,7 @@ graph LR
     SC -.-> GE
 ```
 
-## Frontend Component Architecture (v1.69.0)
+## Frontend Component Architecture (v1.76.0)
 
 ```mermaid
 graph TD

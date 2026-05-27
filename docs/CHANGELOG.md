@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.76.0] - 2026-05-27
+
+### Added
+- **Battery Optimization Mode**: Introduced configuration presets for low-power operation.
+  - Reduced default map size to 10x10.
+  - Limited parallel execution to 2 threads.
+  - Increased tick duration to 500ms and reduced broadcast frequency.
+
+### Fixed
+- **Frontend Compilation**: Fixed missing `PopulationPoint` type in `island-ui/src/types/simulation.ts` that prevented production builds.
+- **Database Resilience**: Forcefully resolved H2 database locking issues during rapid application restarts.
+- **Project Integrity**: Ensured all modules are properly installed in the local Maven repository to resolve inter-module dependencies.
+
 ## [1.75.0] - 2026-05-27
 
 ### Added

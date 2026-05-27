@@ -13,6 +13,7 @@ The system follows a **Modular Monolith** approach with strict separation of con
 - **ECS Pattern**: Entities are just IDs; data is stored in SoA (Structure of Arrays) for cache-friendly access.
 - **Strategy Pattern**: Used for extensibility (e.g., `SocialEffectProvider` in SimCity).
 - **Lombok**: Ubiquitous use for boilerplate reduction.
+- **Resource Management**: Support for low-power/battery-saving modes via `application.yml` (reduced map size, thread capping, and increased tick intervals).
 
 ## Database & Infrastructure
 - **Persistence**: JPA with **persistent H2 storage** (`jdbc:h2:file:./data/simulations_db`). Snapshots are stored as JSON CLOBs.

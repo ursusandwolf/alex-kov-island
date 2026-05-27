@@ -14,4 +14,9 @@ export interface WorldSnapshot {
   nodes: NodeSnapshot[][];
 }
 
+export interface PopulationPoint {
+  tick: number;
+  [species: string]: number;
+}
+
 export type SimulationStatus = 'IDLE' | 'RUNNING' | 'PAUSED';
