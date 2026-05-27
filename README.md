@@ -8,7 +8,7 @@ Get the simulation running in 60 seconds:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/alex-kov/alex-kov-island.git
+git clone https://github.com/ursusandwolf/alex-kov-island.git
 cd alex-kov-island
 
 # 2. Build and run tests

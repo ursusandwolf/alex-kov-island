@@ -8,6 +8,8 @@ import com.island.engine.model.Mortal;
 import com.island.engine.model.Tickable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CancellationException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
@@ -172,9 +174,9 @@ public class GameLoop<T extends Mortal> {
             return true;
         } catch (TimeoutException e) {
             return false;
-        } catch (java.util.concurrent.ExecutionException e) {
+        } catch (ExecutionException e) {
             return true;
-        } catch (java.util.concurrent.CancellationException e) {
+        } catch (CancellationException e) {
             return true;
         }
     }

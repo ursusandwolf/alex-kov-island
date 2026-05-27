@@ -39,6 +39,13 @@ dist/
 *.tmp
 *.temp
 
+# Runtime data
+data/
+island-app/data/
+*.mv.db
+*.trace.db
+scripts/fix_imports.py
+
 # island-ui deps
 island-ui/node_modules/
 island-ui/dist/

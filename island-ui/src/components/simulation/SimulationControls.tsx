@@ -24,13 +24,13 @@ export function SimulationControls({
       <div className="config-group">
         <Input 
           label="Width:"
-          type="number" min="1" max="100" 
+          type="number" min="5" max="200" 
           value={configWidth} 
           onChange={e => onConfigChange(Number(e.target.value), configHeight, configTickMs)} 
         />
         <Input 
           label="Height:"
-          type="number" min="1" max="100" 
+          type="number" min="5" max="200" 
           value={configHeight} 
           onChange={e => onConfigChange(configWidth, Number(e.target.value), configTickMs)} 
         />

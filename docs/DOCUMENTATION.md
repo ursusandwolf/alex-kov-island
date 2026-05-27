@@ -26,17 +26,19 @@ All endpoints are prefixed with `/api/v1/simulation`.
 
 ### REST Endpoints
 - `POST /start`: Initialize and start a simulation with custom parameters.
+- `POST /start-from-snapshot`: Start a new simulation from a saved snapshot.
 - `POST /stop`: Gracefully stop the current simulation.
 - `POST /pause` / `POST /resume`: Control the execution flow.
-- `GET /status`: Current engine state and metrics.
-- `POST /snapshot`: Persist current state to JPA history.
-- `GET /history`: List available historical snapshots.
-- `POST /seed`: Reinitialize the world from a historical snapshot.
+- `GET /status`: Current engine state (`IDLE`, `RUNNING`, `PAUSED`).
+- `GET /snapshot`: Return the current in-memory world snapshot.
+- `POST /snapshot/save`: Persist the current state to snapshot history.
+- `GET /snapshot/history`: List saved snapshot filenames.
+- `GET /snapshot/history/{filename}`: Load a saved historical snapshot.
 
 ### WebSocket (STOMP)
-- **Topic**: `/topic/simulation`
+- **Topic**: `/topic/world-state`
 - **Payload**: `WorldSnapshot` (Polymorphic JSON).
-- **Broadcast Interval**: Configurable via `sim.broadcastInterval`.
+- **Broadcast Interval**: Configurable via `sim.broadcast-interval`.
 
 ## Testing & Quality Strategy
 - **Unit/Integration**: JUnit 5 + Mockito.
