@@ -222,10 +222,12 @@ graph LR
         RD[React Dashboard]
         RC[HTML5 Canvas]
         ZS[Zustand Store]
+        TQ[TanStack Query]
         SW[useSimulationSocket Hook]
         RD --- ZS
         RD --- RC
         RD --- SW
+        RD --- TQ
     end
 
     subgraph App_Layer [island-app (Spring Boot)]
@@ -243,7 +245,8 @@ graph LR
         NP[NamedSimulationPlugin]
     end
 
-    RD -- REST API --> SC
+    RD -- REST/Mutations --> TQ
+    TQ -- API --> SC
     SW -- STOMP --> SB
     SC -- Lifecycle --> SS
     SS -- Registry --> NP
@@ -257,7 +260,7 @@ graph LR
     SC -.-> GE
 ```
 
-## Frontend Component Architecture (v1.68.0)
+## Frontend Component Architecture (v1.69.0)
 
 ```mermaid
 graph TD
@@ -277,7 +280,8 @@ graph TD
     end
     
     subgraph DataLayer
-        US[useSimulationStore]
+        US[useSimulationStore - Snapshots]
+        TQ[TanStack Query - Server State]
         SK[useSimulationSocket]
         API[simulationApi]
     end
@@ -290,9 +294,10 @@ graph TD
     App --> CD
     App --> L
     
-    SC --> US
+    SC --> TQ
+    SH --> TQ
     SH --> US
     WC --> US
-    US --> API
+    TQ --> API
     SK --> US
 ```

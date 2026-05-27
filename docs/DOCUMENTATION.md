@@ -17,7 +17,7 @@ The system follows a **Modular Monolith** approach with strict separation of con
 ## Database & Infrastructure
 - **Persistence**: JPA with **persistent H2 storage** (`jdbc:h2:file:./data/simulations_db`). Snapshots are stored as JSON CLOBs.
 - **Observability**: Spring Boot Actuator + Micrometer + Prometheus.
-- **Frontend**: Vite + React 18. Uses **intelligent polling** (only as fallback for WebSocket) and TanStack Query.
+- **Frontend**: Vite + React 18. **Unified State Management**: TanStack Query for server state/mutations, Zustand for real-time WebSocket updates. Atomic selectors and decomposed components.
 - **Containerization**: Optimized multi-stage Docker build with dependency caching. Produces a lean JRE-based image.
 
 ## API Specification (v1)

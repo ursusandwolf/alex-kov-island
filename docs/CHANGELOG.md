@@ -5,6 +5,79 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.75.0] - 2026-05-27
+
+### Added
+- **Canvas Tooltips**: Implemented real-time tooltips on the world map.
+  - Automatic coordinate and species detection under the cursor.
+  - Accounts for current zoom level and pan offset.
+  - Visual feedback for empty vs populated cells.
+  - Shared `Tooltip` UI component for consistent styling.
+- **Enhanced Interaction**: Added a new instruction hint to the canvas area.
+
+## [1.74.0] - 2026-05-27
+
+### Added
+- **Synthesized Audio Feedback**: Added audio cues for notifications using Web Audio API.
+  - Success: Cheerful rising notes.
+  - Error: Low-frequency warning buzz.
+  - Info/Warning: Subtle clicks/pings.
+  - No external assets required; sounds are generated dynamically.
+- **Improved UX**: Enhanced user awareness of background simulation events.
+
+## [1.73.0] - 2026-05-27
+
+### Added
+- **Toast Notifications**: Implemented a global notification system using Zustand and React.
+  - Success, Error, Warning, and Info types with distinct icons and colors.
+  - Automatic dismissal after 4 seconds or manual dismissal on click.
+  - Integrated into all simulation actions (start, stop, pause, resume, save).
+  - Smooth slide-in animations and theme-aware styling.
+
+## [1.72.0] - 2026-05-27
+
+### Added
+- **Dark Mode**: Implemented full support for dark and light themes.
+  - CSS Variables for all colors, backgrounds, and shadows.
+  - Theme toggler in the `Header` with persistence in `localStorage`.
+  - Theme-aware species colors for better visibility on dark backgrounds.
+- **Visual Polish**: Improved card shadows, border radii, and spacing across the entire application.
+
+## [1.71.0] - 2026-05-27
+
+### Added
+- **Shared UI Library**: Created a set of reusable atomic components in `src/shared/ui`:
+  - `Button`: Flexible button with variants, sizes, and built-in loading states.
+  - `Panel`: Standardized container for UI sections with headers and actions.
+  - `Input`: Labeled input components for configuration.
+- **Design System**: Centralized UI logic and styles, reducing CSS duplication.
+
+### Changed
+- **Component Refactoring**: All simulation components (`SimulationControls`, `SnapshotHistoryPanel`, `CellDetails`, etc.) now use shared UI components.
+- **Visual Improvements**: Added animated loading indicators to all asynchronous buttons.
+
+## [1.70.0] - 2026-05-27
+
+### Added
+- **Interactive Canvas**: Implemented Zoom & Pan functionality for `WorldCanvas`.
+  - Mouse Wheel to zoom towards pointer.
+  - Click & Drag to pan the world view.
+  - High-DPI (Retina) support for crisp rendering.
+  - Zoom info and "Reset View" toolbar.
+- **Improved Visuals**: Added a wrapper and hints for the simulation canvas.
+
+## [1.69.0] - 2026-05-27
+
+### Changed
+- **Frontend State Management**: Unified state management by migrating all API calls and mutations to **TanStack Query**. 
+- **Zustand Store**: Simplified `useSimulationStore.ts` to only handle real-time WebSocket data and UI state (history view toggle).
+- **Atomic Selectors**: Implemented atomic selectors in components to optimize re-renders.
+- **App Component**: Further simplified `App.tsx` by removing manual status polling and improving coordinate parsing.
+
+### Fixed
+- **Redundant API Calls**: Removed duplicated API logic between Zustand store and TanStack Query hooks.
+- **Coordination Safety**: Improved split/parse logic for selected coordinates to prevent crashes on invalid data.
+
 ## [1.68.0] - 2026-05-26
 
 ### Fixed

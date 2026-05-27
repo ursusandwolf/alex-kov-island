@@ -1,81 +1,38 @@
-import { test, expect, vi, beforeEach } from 'vitest';
+import { test, expect, beforeEach } from 'vitest';
 import { useSimulationStore } from './useSimulationStore';
 
-// Mock fetch globally
-globalThis.fetch = vi.fn();
-
 beforeEach(() => {
-  vi.resetAllMocks();
   // Reset store to initial state
-  useSimulationStore.setState({ status: 'IDLE', error: null, history: [], snapshot: null, viewingHistory: false });
+  useSimulationStore.setState({ 
+    snapshot: null, 
+    populationHistory: [], 
+    viewingHistory: false, 
+    connected: false 
+  });
 });
 
-test('updateStatus success updates the status', async () => {
-  vi.mocked(globalThis.fetch).mockResolvedValueOnce({
-    ok: true,
-    json: async () => ({ status: 'RUNNING' }),
-  } as Response);
-
-  await useSimulationStore.getState().updateStatus();
-
-  expect(globalThis.fetch).toHaveBeenCalledWith('/api/v1/simulation/status');
-  expect(useSimulationStore.getState().status).toBe('RUNNING');
-  expect(useSimulationStore.getState().error).toBeNull();
+test('setSnapshot updates the snapshot', () => {
+  const mockSnapshot = { tickCount: 5 } as any;
+  useSimulationStore.getState().setSnapshot(mockSnapshot);
+  expect(useSimulationStore.getState().snapshot?.tickCount).toBe(5);
 });
 
-test('pause success updates status', async () => {
-  // First mock the pause call
-  vi.mocked(globalThis.fetch).mockResolvedValueOnce({
-    ok: true,
-    statusText: 'OK'
-  } as Response);
-  
-  // Then mock the subsequent updateStatus call
-  vi.mocked(globalThis.fetch).mockResolvedValueOnce({
-    ok: true,
-    json: async () => ({ status: 'PAUSED' }),
-  } as Response);
-
-  await useSimulationStore.getState().pause();
-
-  expect(globalThis.fetch).toHaveBeenCalledWith('/api/v1/simulation/pause', { method: 'POST' });
-  expect(useSimulationStore.getState().status).toBe('PAUSED');
-  expect(useSimulationStore.getState().error).toBeNull();
-});
-
-test('live snapshots do not overwrite history view until user exits it', async () => {
+test('live snapshots do not overwrite history view until user exits it', () => {
   useSimulationStore.setState({
-    snapshot: {
-      tickCount: 10,
-      width: 1,
-      height: 1,
-      totalEntityCount: 5,
-      metrics: {},
-      nodes: [],
-    },
+    snapshot: { tickCount: 10 } as any,
     viewingHistory: true,
   });
 
-  useSimulationStore.getState().setLiveSnapshot({
-    tickCount: 11,
-    width: 1,
-    height: 1,
-    totalEntityCount: 6,
-    metrics: {},
-    nodes: [],
-  });
-
+  useSimulationStore.getState().setLiveSnapshot({ tickCount: 11 } as any);
   expect(useSimulationStore.getState().snapshot?.tickCount).toBe(10);
 
   useSimulationStore.getState().exitHistoryView();
-  useSimulationStore.getState().setLiveSnapshot({
-    tickCount: 12,
-    width: 1,
-    height: 1,
-    totalEntityCount: 7,
-    metrics: {},
-    nodes: [],
-  });
-
+  useSimulationStore.getState().setLiveSnapshot({ tickCount: 12 } as any);
   expect(useSimulationStore.getState().snapshot?.tickCount).toBe(12);
+});
+
+test('resetPopulationHistory clears the history', () => {
+  useSimulationStore.setState({ populationHistory: [{ tick: 1 }] });
+  useSimulationStore.getState().resetPopulationHistory();
+  expect(useSimulationStore.getState().populationHistory).toHaveLength(0);
 });

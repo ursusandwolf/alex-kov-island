@@ -1,33 +1,33 @@
 import { useSimulationStore } from '../../store/useSimulationStore';
+import { useSimulationMutations, useSimulationHistory } from '../../hooks/useSimulationQueries';
+import { Button, Panel } from '../../shared/ui';
 
 interface SnapshotHistoryPanelProps {
   configTickMs: number;
 }
 
 export function SnapshotHistoryPanel({ configTickMs }: SnapshotHistoryPanelProps) {
-  const { 
-    history, 
-    viewingHistory, 
-    startFromSnapshot, 
-    loadHistoricalSnapshot, 
-    exitHistoryView 
-  } = useSimulationStore();
+  const { data: historyData } = useSimulationHistory();
+  const history = historyData?.filenames || [];
+  
+  const viewingHistory = useSimulationStore(state => state.viewingHistory);
+  const exitHistoryView = useSimulationStore(state => state.exitHistoryView);
+
+  const { startFromSnapshot, loadHistoricalSnapshot } = useSimulationMutations();
+
+  const headerAction = viewingHistory && (
+    <Button
+      variant="secondary"
+      size="sm"
+      onClick={exitHistoryView}
+      title="Return to live updates"
+    >
+      Live View
+    </Button>
+  );
 
   return (
-    <div className="panel">
-      <div className="panel-header">
-        <h3 className="panel-title">Snapshot History</h3>
-        {viewingHistory && (
-          <button
-            onClick={exitHistoryView}
-            className="btn btn-secondary btn-sm"
-            title="Return to live updates"
-          >
-            Live View
-          </button>
-        )}
-      </div>
-      
+    <Panel title="Snapshot History" headerAction={headerAction}>
       {history.length === 0 ? (
         <p className="empty-text">
           No snapshots saved yet.
@@ -37,32 +37,37 @@ export function SnapshotHistoryPanel({ configTickMs }: SnapshotHistoryPanelProps
           {history.map(filename => (
             <li key={filename} className="history-item">
               <button 
-                onClick={() => loadHistoricalSnapshot(filename)}
+                onClick={() => loadHistoricalSnapshot.mutate(filename)}
                 className="btn-snapshot-view"
                 title="View Snapshot"
+                disabled={loadHistoricalSnapshot.isPending}
               >
                 {filename.replace('.json', '')}
               </button>
               
-              <button 
-                onClick={() => startFromSnapshot(filename, 'nature', configTickMs)}
-                className="btn btn-success btn-sm"
+              <Button 
+                variant="success"
+                size="sm"
+                onClick={() => startFromSnapshot.mutate({ filename, type: 'nature', tickMs: configTickMs })}
                 title="Start Nature simulation from this snapshot"
+                disabled={startFromSnapshot.isPending}
               >
                 ▶ N
-              </button>
+              </Button>
               
-              <button 
-                onClick={() => startFromSnapshot(filename, 'simcity', configTickMs)}
-                className="btn btn-primary btn-sm"
+              <Button 
+                variant="primary"
+                size="sm"
+                onClick={() => startFromSnapshot.mutate({ filename, type: 'simcity', tickMs: configTickMs })}
                 title="Start SimCity simulation from this snapshot"
+                disabled={startFromSnapshot.isPending}
               >
                 ▶ C
-              </button>
+              </Button>
             </li>
           ))}
         </ul>
       )}
-    </div>
+    </Panel>
   );
 }

@@ -27,6 +27,7 @@ test('handles cell click', () => {
   };
 
   const onCellClick = vi.fn();
+  // Using cellSize=10 for simplicity in test
   const { container } = render(
     <WorldCanvas snapshot={mockSnapshot as any} cellSize={10} onCellClick={onCellClick} />
   );
@@ -34,22 +35,26 @@ test('handles cell click', () => {
   const canvas = container.querySelector('canvas');
   expect(canvas).toBeInTheDocument();
 
-  // Mock getBoundingClientRect
   if (canvas) {
+    // The component defaults to transform {x: 20, y: 20, scale: 1}
+    // Cell (1,1) at world coords (10, 10)
+    // Canvas coords = transform.x + worldX * scale = 20 + 10 * 1 = 30
+    // Canvas coords = transform.y + worldY * scale = 20 + 10 * 1 = 30
+    
     canvas.getBoundingClientRect = vi.fn(() => ({
       left: 0,
       top: 0,
-      right: 20,
-      bottom: 20,
-      width: 20,
-      height: 20,
+      width: 100,
+      height: 100,
+      right: 100,
+      bottom: 100,
       x: 0,
       y: 0,
       toJSON: () => {}
     }));
     
-    // Simulate click on cell (1, 1) i.e. x=15, y=15
-    fireEvent.click(canvas, { clientX: 15, clientY: 15 });
+    // Click at (35, 35) to be safely inside cell (1,1) which starts at (30,30) in canvas space
+    fireEvent.click(canvas, { clientX: 35, clientY: 35 });
   }
 
   expect(onCellClick).toHaveBeenCalledWith('1,1');

@@ -1,3 +1,5 @@
+import { Panel } from '../../shared/ui';
+
 interface SimulationMetricsProps {
   tickCount?: number;
   totalEntityCount?: number;
@@ -15,15 +17,13 @@ export function SimulationMetrics({
 }: SimulationMetricsProps) {
   return (
     <>
-      <div className="panel">
-        <h3>Simulation Info</h3>
+      <Panel title="Simulation Info">
         <p><strong>Tick:</strong> {tickCount || 0}</p>
         <p><strong>Entities:</strong> {totalEntityCount || 0}</p>
         <p><strong>Dimensions:</strong> {width !== undefined && height !== undefined ? `${width}x${height}` : 'N/A'}</p>
-      </div>
+      </Panel>
 
-      <div className="panel">
-        <h3>Metrics</h3>
+      <Panel title="Metrics">
         {metrics ? Object.entries(metrics).map(([key, value]) => (
           <div key={key} className="metrics-row">
             <span className="metrics-key">{key}:</span>
@@ -32,7 +32,7 @@ export function SimulationMetrics({
             </span>
           </div>
         )) : <p>No metrics available</p>}
-      </div>
+      </Panel>
     </>
   );
 }

@@ -1,20 +1,28 @@
+import { getSpeciesColor } from '../../utils/colors';
+import { Panel } from '../../shared/ui';
+
 export function Legend() {
+  const species = [
+    { code: 'WOLF', label: 'Wolf (Predator)', plant: false },
+    { code: 'RABBIT', label: 'Rabbit (Prey)', plant: false },
+    { code: 'PLANT', label: 'Plant (Food)', plant: true },
+    { code: 'HOUSE', label: 'House (Residential)', plant: false },
+    { code: 'ROAD', label: 'Road (Infrastructure)', plant: false },
+  ];
+
   return (
-    <div className="panel">
-      <h3>Legend</h3>
+    <Panel title="Legend">
       <ul className="legend-list">
-        <LegendItem color="#4caf50" label="Plants / Residential" />
-        <LegendItem color="#2196f3" label="Herbivores / Commercial" />
-        <LegendItem color="#f44336" label="Predators / Industrial" />
-        <LegendItem color="#9c27b0" label="Special / Others" />
+        {species.map(s => (
+          <li key={s.code} className="legend-item">
+            <div 
+              className="legend-color" 
+              style={{ backgroundColor: getSpeciesColor(s.code, s.plant) }}
+            />
+            <span className="legend-label">{s.label}</span>
+          </li>
+        ))}
       </ul>
-    </div>
+    </Panel>
   );
 }
-
-const LegendItem = ({ color, label }: { color: string, label: string }) => (
-  <li className="legend-item">
-    <div className="legend-color" style={{ background: color }} />
-    <span className="legend-label">{label}</span>
-  </li>
-);

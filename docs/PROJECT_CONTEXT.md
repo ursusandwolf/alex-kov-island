@@ -1,7 +1,7 @@
 # Project Context: Island Ecosystem Simulator
 
-## Status: Intelligent & Spatial-Aware (v1.68.0)
-The system now features **Intelligent Animal Behavior** and a **Hardened Frontend Architecture**.
+## Status: Frontend Overhaul (v1.75.0)
+The system now features a **Modern, Reactive Frontend** with unified state management, interactive canvas (Zoom/Pan/Tooltips), and a shared UI library with Dark Mode support.
 
 ## Project Goal
 To provide a high-performance, extensible engine for simulating complex ecosystems and urban environments, leveraging modern Java features and ECS architecture.
@@ -12,7 +12,7 @@ To provide a high-performance, extensible engine for simulating complex ecosyste
 - **Performance**: Expanded **JMH benchmarks** cover both Nature (SoA) and SimCity (Connectivity/Population) domains.
 - **Domains**: Nature and SimCity are integrated and performant at 20x20 scale.
 - **Backend**: Spring Boot 3.2.5 (Security disabled) with **Persistent H2 Storage**. Snapshots survive restarts.
-- **Frontend**: Vite + React 18. **Hardened Architecture**: Decomposed components, unified state management, and externalized styling (v1.68.0).
+- **Frontend**: Vite + React 18. **Modern Architecture**: Unified TanStack Query + Zustand state, Shared UI library, Interactive Canvas (Zoom/Pan/Tooltips), Dark Mode, and Audio Feedback (v1.75.0).
 - **Infrastructure**: Optimized **multi-stage Dockerfile** with dependency caching. Prometheus pre-configured.
 
 ## Technical Entry Point

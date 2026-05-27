@@ -1,4 +1,5 @@
-import { useSimulationStore } from '../../store/useSimulationStore';
+import { useSimulationMutations, useSimulationStatus } from '../../hooks/useSimulationQueries';
+import { Button, Input } from '../../shared/ui';
 
 interface SimulationControlsProps {
   configWidth: number;
@@ -13,85 +14,84 @@ export function SimulationControls({
   configTickMs, 
   onConfigChange 
 }: SimulationControlsProps) {
-  const { status, start, pause, resume, stop, saveSnapshot } = useSimulationStore();
+  const { data: statusData } = useSimulationStatus();
+  const status = statusData?.status || 'IDLE';
+  
+  const { start, pause, resume, stop, save } = useSimulationMutations();
 
   return (
     <div className="controls-container">
       <div className="config-group">
-        <label className="config-label">
-          Width: 
-          <input 
-            type="number" min="1" max="100" 
-            value={configWidth} 
-            onChange={e => onConfigChange(Number(e.target.value), configHeight, configTickMs)} 
-            className="config-input" 
-          />
-        </label>
-        <label className="config-label">
-          Height: 
-          <input 
-            type="number" min="1" max="100" 
-            value={configHeight} 
-            onChange={e => onConfigChange(configWidth, Number(e.target.value), configTickMs)} 
-            className="config-input" 
-          />
-        </label>
-        <label className="config-label">
-          Tick (ms): 
-          <input 
-            type="number" min="10" max="5000" 
-            value={configTickMs} 
-            onChange={e => onConfigChange(configWidth, configHeight, Number(e.target.value))} 
-            className="config-input" 
-          />
-        </label>
+        <Input 
+          label="Width:"
+          type="number" min="1" max="100" 
+          value={configWidth} 
+          onChange={e => onConfigChange(Number(e.target.value), configHeight, configTickMs)} 
+        />
+        <Input 
+          label="Height:"
+          type="number" min="1" max="100" 
+          value={configHeight} 
+          onChange={e => onConfigChange(configWidth, Number(e.target.value), configTickMs)} 
+        />
+        <Input 
+          label="Tick (ms):"
+          type="number" min="10" max="5000" 
+          value={configTickMs} 
+          onChange={e => onConfigChange(configWidth, configHeight, Number(e.target.value))} 
+        />
       </div>
       
-      <button 
-        onClick={() => start('nature', configWidth, configHeight, configTickMs)} 
-        className="btn btn-success"
+      <Button 
+        variant="success"
+        onClick={() => start.mutate({ type: 'nature', width: configWidth, height: configHeight, tickMs: configTickMs })} 
+        isLoading={start.isPending}
       >
         Start Nature
-      </button>
+      </Button>
       
-      <button 
-        onClick={() => start('simcity', configWidth, configHeight, configTickMs)} 
-        className="btn btn-primary"
+      <Button 
+        variant="primary"
+        onClick={() => start.mutate({ type: 'simcity', width: configWidth, height: configHeight, tickMs: configTickMs })} 
+        isLoading={start.isPending}
       >
         Start SimCity
-      </button>
+      </Button>
       
-      <button 
-        onClick={pause} 
-        disabled={status !== 'RUNNING'} 
-        className="btn"
+      <Button 
+        onClick={() => pause.mutate()} 
+        disabled={status !== 'RUNNING'}
+        isLoading={pause.isPending}
       >
         Pause
-      </button>
+      </Button>
       
-      <button 
-        onClick={resume} 
-        disabled={status !== 'PAUSED'} 
-        className="btn"
+      <Button 
+        onClick={() => resume.mutate()} 
+        disabled={status !== 'PAUSED'}
+        isLoading={resume.isPending}
       >
         Resume
-      </button>
+      </Button>
       
-      <button 
-        onClick={stop} 
-        disabled={status === 'IDLE'} 
-        className="btn btn-danger"
+      <Button 
+        variant="danger"
+        onClick={() => stop.mutate()} 
+        disabled={status === 'IDLE'}
+        isLoading={stop.isPending}
       >
         Stop
-      </button>
+      </Button>
       
-      <button 
-        onClick={saveSnapshot} 
-        disabled={status === 'IDLE'} 
-        className="btn btn-warning ml-auto"
+      <Button 
+        variant="warning"
+        onClick={() => save.mutate()} 
+        disabled={status === 'IDLE'}
+        isLoading={save.isPending}
+        className="ml-auto"
       >
         Save Snapshot
-      </button>
+      </Button>
     </div>
   );
 }
