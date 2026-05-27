@@ -6,8 +6,8 @@
 - IDE: IntelliJ IDEA рекомендуется (Lombok и JPMS поддержка из коробки)
 
 ## Шаг 1: Клонировать и собрать (10 минут)
-git clone https://github.com/ursusandwolf/alex.kov.island.git
-cd alex.kov.island
+git clone https://github.com/ursusandwolf/alex-kov-island.git
+cd alex-kov-island
 git checkout dev
 mvn clean verify        # ← должно завершиться BUILD SUCCESS
 

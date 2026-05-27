@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.76.0] - 2026-05-27
 
 ### Added
+- **Repository Rename**: Renamed repository to `alex-kov-island`.
 - **Battery Optimization Mode**: Introduced configuration presets for low-power operation.
   - Reduced default map size to 10x10.
   - Limited parallel execution to 2 threads.

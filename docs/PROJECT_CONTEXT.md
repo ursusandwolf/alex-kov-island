@@ -17,6 +17,7 @@ The system is now stable and optimized for mobile/battery-powered development. R
 - **Persistence**: JPA/H2 file-based storage for simulation history.
 
 ### 🧪 Recent Changes (May 27, 2026)
+- **Repo Rename**: Renamed repository to `alex-kov-island`.
 - **Fix**: Added missing `PopulationPoint` interface to `simulation.ts`.
 - **Optimization**: Updated `application.yml` with low-power presets (10x10, 2 threads).
 - **Tooling**: Verified background process management and database lock recovery.

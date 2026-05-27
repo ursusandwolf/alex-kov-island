@@ -104,7 +104,7 @@ def fix_file(file_path):
         f.write("\n".join(final_output))
 
 def main():
-    for base_dir in ['/Users/alex/IdeaProjects/alex.kov.island/src/main/java', '/Users/alex/IdeaProjects/alex.kov.island/src/test/java']:
+    for base_dir in ['/Users/alex/IdeaProjects/alex-kov-island/src/main/java', '/Users/alex/IdeaProjects/alex-kov-island/src/test/java']:
         if not os.path.exists(base_dir):
             continue
         for root, dirs, files in os.walk(base_dir):

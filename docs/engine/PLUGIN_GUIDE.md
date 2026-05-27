@@ -15,7 +15,7 @@
 <!-- island-myplugin/pom.xml -->
 <parent>
     <groupId>com.island</groupId>
-    <artifactId>alex.kov.island</artifactId>
+    <artifactId>alex-kov-island</artifactId>
     <version>1.0-SNAPSHOT</version>
 </parent>
 <artifactId>island-myplugin</artifactId>
