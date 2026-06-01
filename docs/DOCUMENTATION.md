@@ -11,11 +11,19 @@ The system follows a **Modular Monolith** approach with strict separation of con
 ## Visualization & Analysis
 ### UML Diagrams
 Detailed pseudographic class diagrams illustrating the relationship between the Engine core and Domain plugins are maintained in **[docs/UML.md](./UML.md)**.
+Frontend component hierarchy and state flow diagrams are available in **[docs/UI_UML.md](./UI_UML.md)**.
+
+### Frontend Architecture (island-ui)
+Frontend построен на компонентном подходе с четким разделением ответственности за состояние:
+- **Server State**: TanStack Query управляет статусом симуляции, списком снимков и операциями управления (`start`, `stop`, `save`).
+- **Real-time State**: Zustand хранит текущий `WorldSnapshot`, историю популяции для графиков и состояние подключения к WebSocket.
+- **Hooks**: Бизнес-логика вынесена в кастомные хуки (`useSimulationQueries`, `useSimulationSocket`), что делает компоненты визуально чистыми.
 
 ### Code Review Insights (v1.77.0)
-- **Concurrency**: The system employs `GridUtils.executeWithDoubleLock` for safe inter-node entity migration, effectively preventing deadlocks in parallel execution.
-- **Optimization Opportunities**: High-frequency methods like `Island.getNode` currently allocate `Optional` objects. Future refactoring will target these for zero-allocation (Zero-GC) alternatives to improve performance on large maps.
-- **Component Design**: ECS components follow a strict SoA pattern, though some domain objects (`Animal`, `Biomass`) still maintain internal state; migration to full SoA for these is ongoing.
+- **Concurrency (Backend)**: Использование `GridUtils.executeWithDoubleLock` для безопасной миграции сущностей.
+- **Efficiency (Frontend)**: Использование `refetchInterval: connected ? false : 3000` в `useSimulationStatus` предотвращает лишние запросы при активном WebSocket-подключении.
+- **Decoupling (Frontend)**: WebSocket-логика полностью изолирована в `useSimulationSocket`, что позволяет менять транспорт без изменения UI.
+- **Optimization Opportunities**: Выявлены аллокации `Optional` в `Island.getNode` (Backend), требующие перехода на Zero-GC.
 
 ## Implementation Standards
 - **Java 21**: Utilizing Virtual Threads (via `ParallelDispatcher`) and Sealed Classes where applicable.
