@@ -17,10 +17,10 @@ The system is now stable and optimized for mobile/battery-powered development. R
 - **Persistence**: JPA/H2 file-based storage for simulation history.
 
 ### 🧪 Recent Changes (June 1, 2026)
-- **Code Review**: Conducted deep dive into Engine and Nature core.
-- **UML**: Generated comprehensive pseudographic class diagrams in `docs/UML.md`.
+- **Code Review**: Conducted deep dive into Engine, Nature, and UI core.
+- **UML**: Generated comprehensive pseudographic class diagrams in `docs/UML.md` (Backend) and `docs/UI_UML.md` (Frontend).
 - **Optimization Strategy**: Identified `Optional` allocations in `Island` hot paths as next refactoring target.
-- **Docs**: Synchronized CHANGELOG, DOCUMENTATION, and UML.
+- **Docs**: Synchronized CHANGELOG, DOCUMENTATION, and UML sets.
 
 ### 📝 Next Steps
 - [ ] Refactor `Island.getNode` and `Island.getCell` to avoid `Optional` (Zero-GC effort).

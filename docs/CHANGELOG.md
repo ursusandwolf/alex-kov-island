@@ -9,9 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Architectural Visualization**: Comprehensive pseudographic UML diagrams in `docs/UML.md` covering Engine and Nature modules.
+- **Frontend Architecture Map**: New `docs/UI_UML.md` visualizing React component hierarchy and state flow.
 - **Deep Code Review**: Conducted detailed analysis of `SimulationEngine`, `Island`, and `NaturePlugin`.
   - Validated thread-safety mechanisms (double-locking in movement).
   - Identified performance bottlenecks in domain hot paths.
+- **Frontend Code Review**: Analyzed `island-ui` state management and API integration.
+  - Verified efficient separation of real-time (Zustand) and server (TanStack Query) state.
+  - Validated atomic selector usage in simulation hooks.
 
 ### Changed
 - **Documentation Sync**: Updated `DOCUMENTATION.md` and `PROJECT_CONTEXT.md` to reflect architectural state v1.77.0.
