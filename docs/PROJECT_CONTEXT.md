@@ -17,9 +17,9 @@ The system is now stable and optimized for mobile/battery-powered development. R
 - **Persistence**: JPA/H2 file-based storage for simulation history.
 
 ### 🧪 Recent Changes (June 1, 2026)
-- **Code Review**: Conducted deep dive into Engine, Nature, and UI core (v1.77.0).
-- **UML**: Generated comprehensive pseudographic class diagrams in `docs/UML.md` (Backend) and `docs/UI_UML.md` (Frontend).
-- **Interview Prep**: Compiled a list of architectural questions and project summary.
+- **Competitive Analysis**: Created `docs/COMPETITIVE_ANALYSIS.md` contrasting the engine with Unity DOTS and LibGDX (v1.78.0).
+- **Public Visibility**: Updated root `README.md` with a "Why Island Engine?" section in English, highlighting ECS and Zero-GC advantages.
+- **Presentation Readiness**: Prepared strategic arguments for architectural decisions (Java 21 vs. Unity).
 - **Optimization Strategy**: Identified `Optional` allocations in `Island` hot paths as next refactoring target.
 - **Docs**: Synchronized CHANGELOG, DOCUMENTATION, and UML sets. Fully pushed to `origin/dev`.
 
