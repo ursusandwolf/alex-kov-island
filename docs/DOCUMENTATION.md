@@ -8,6 +8,15 @@ The system follows a **Modular Monolith** approach with strict separation of con
 2.  **Domain Plugins (`island-nature`, `island-simcity`)**: Implement specific simulation rules via `SimulationPlugin` and `EntitySystem`.
 3.  **Application (`island-app`)**: Spring Boot-managed host. Orchestrates plugins, provides REST/WebSocket APIs, and manages persistence.
 
+## Visualization & Analysis
+### UML Diagrams
+Detailed pseudographic class diagrams illustrating the relationship between the Engine core and Domain plugins are maintained in **[docs/UML.md](./UML.md)**.
+
+### Code Review Insights (v1.77.0)
+- **Concurrency**: The system employs `GridUtils.executeWithDoubleLock` for safe inter-node entity migration, effectively preventing deadlocks in parallel execution.
+- **Optimization Opportunities**: High-frequency methods like `Island.getNode` currently allocate `Optional` objects. Future refactoring will target these for zero-allocation (Zero-GC) alternatives to improve performance on large maps.
+- **Component Design**: ECS components follow a strict SoA pattern, though some domain objects (`Animal`, `Biomass`) still maintain internal state; migration to full SoA for these is ongoing.
+
 ## Implementation Standards
 - **Java 21**: Utilizing Virtual Threads (via `ParallelDispatcher`) and Sealed Classes where applicable.
 - **ECS Pattern**: Entities are just IDs; data is stored in SoA (Structure of Arrays) for cache-friendly access.
