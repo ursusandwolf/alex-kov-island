@@ -1,303 +1,100 @@
-# Архитектура проекта (UML)
+# UML: Island Ecosystem Simulator (v1.76.0)
 
-## Общая схема модулей и зависимостей
-
-```mermaid
-graph TD
-    subgraph App
-        AL[NatureLauncher]
-        SL[SimCityLauncher]
-    end
-
-    subgraph Plugins
-        NP[island-nature]
-        SP[island-simcity]
-    end
-
-    subgraph Core
-        IE[island-engine]
-        IU[island-util]
-    end
-
-    subgraph QA
-        IB[island-benchmarks]
-    end
-
-    AL --> NP
-    SL --> SP
-    NP --> IE
-    SP --> IE
-    IE --> IU
-    NP --> IU
-    SP --> IU
-    IB --> IE
-    IB --> SP
-```
-
-## ECS & SoA Architecture (Engine)
+## Engine Core Structure
 
 ```mermaid
 classDiagram
-    class Entity {
-        +long entityId
-        +addComponent(Component)
-        +getComponent(Class)
-    }
-
-    class Component {
-        <<interface>>
-    }
-
-    class ComponentStore {
-        <<interface>>
-        +get(entityId)
-        +set(entityId, component)
-    }
-
-    class SoAStore {
-        <<abstract>>
-        #AtomicLongArray data
-    }
-
-    class HealthSoAStore {
-        +getHealth(entityId)
-    }
-
-    class EntitySystem {
-        <<abstract>>
-        +requiredComponents()
-        +writeComponents()
-        +process(entity)
-    }
-
-    Entity "1" *-- "many" Component
-    ComponentStore <|.. SoAStore
-    SoAStore <|-- HealthSoAStore
-    EntitySystem ..> Component : filters
-```
-
-## Жизненный цикл Тика (Scheduling)
-
-```mermaid
-sequenceDiagram
-    participant GL as GameLoop
-    participant PS as PhaseScheduler
-    participant PR as PREPARE Tasks
-    participant SM as SIMULATION Tasks (Parallel)
-    participant PO as POSTPROCESS Tasks
-
-    GL->>PS: executeTick(tickCount)
-    PS->>PR: execute(priority order)
-    PR-->>PS: done
-    PS->>SM: execute(parallel WorkUnits)
-    SM-->>PS: done
-    PS->>PO: execute(cleanup, stats, snapshot)
-    PO-->>PS: done
-    PS-->>GL: tick complete
-```
-
-## Иерархия сущностей (Nature Plugin)
-
-```mermaid
-classDiagram
-    class Organism {
-        <<interface>>
-        +isAlive()
-        +die(DeathCause)
-    }
-
-    class Animal {
-        +SpeciesKey species
-        +long energy
-    }
-
-    class Biomass {
-        +double amount
-    }
-
-    Organism <|-- Animal
-    Organism <|-- Biomass
-    Animal ..> HealthComponent : has
-    Animal ..> MovementComponent : has
-```
-
-## Карта города (SimCity Plugin)
-
-```mermaid
-classDiagram
-    class CityMap {
-        -CityTile[][] grid
-    }
-
-    class CityTile {
-        -List~SimEntity~ entities
-        -boolean powered
-        -boolean watered
-        +cleanupDeadEntities()
-    }
-
-    class SimEntity {
-        +entityId
-    }
-
-    CityMap "1" *-- "many" CityTile
-    CityTile "1" *-- "many" SimEntity
-```
-
-## Polymorphic Snapshots (Persistence)
-
-```mermaid
-classDiagram
-    class WorldSnapshot {
-        <<interface>>
-        +int getTickCount()
-        +int getWidth()
-        +int getHeight()
-        +Map metrics
-        +getNodeSnapshot(x, y)
-    }
-
-    class IslandSnapshot {
-        -int tickCount
-        -int width
-        -int height
-        -CellSnapshot[][] nodes
-        +IslandSnapshot()
-        +IslandSnapshot(Island)
-    }
-
-    class CitySnapshot {
-        -int tickCount
-        -int width
-        -int height
-        -CityNodeSnapshot[][] nodes
-        +CitySnapshot()
-        +CitySnapshot(CityMap, tick)
-    }
-
-    class WorldSnapshotMixin {
-        <<mixin>>
-        @JsonTypeInfo
-        @JsonSubTypes
-    }
-
-    WorldSnapshot <|.. IslandSnapshot
-    WorldSnapshot <|.. CitySnapshot
-    WorldSnapshotMixin .. WorldSnapshot : registered in ObjectMapper
-```
-
-## Social Effects Strategy (OCP)
-
-```mermaid
-classDiagram
-    class SocialService {
-        -Map~Type, SocialEffectProvider~ providers
-        +spreadEffect(center, radius, power, isEducation)
-    }
-
-    class SocialEffectProvider {
-        <<interface>>
-        +getSupportedType() Type
-        +applyEffect(tile, service)
-    }
-
-    class SchoolEffectProvider {
-        +applyEffect(tile, service)
-    }
-
-    class HospitalEffectProvider {
-        +applyEffect(tile, service)
-    }
-
-    SocialService "1" o-- "many" SocialEffectProvider
-    SocialEffectProvider <|.. SchoolEffectProvider
-    SocialEffectProvider <|.. HospitalEffectProvider
-```
-
-## Spring Boot & React Integration (Phase 4)
-
-```mermaid
-graph LR
-    subgraph UI_Layer [island-ui (React + Vite)]
-        RD[React Dashboard]
-        RC[HTML5 Canvas]
-        ZS[Zustand Store]
-        TQ[TanStack Query]
-        SW[useSimulationSocket Hook]
-        RD --- ZS
-        RD --- RC
-        RD --- SW
-        RD --- TQ
-    end
-
-    subgraph App_Layer [island-app (Spring Boot)]
-        SC[SimulationController]
-        SS[SimulationService]
-        SB[SimulationBroadcaster]
-        JC[SimulationJacksonConfig]
-        GE[GlobalExceptionHandler]
-    end
-
-    subgraph Core_Layer [island-engine]
-        SE[SimulationEngine]
-        CX[SimulationContext]
-        GL[GameLoop]
-        NP[NamedSimulationPlugin]
-    end
-
-    RD -- REST/Mutations --> TQ
-    TQ -- API --> SC
-    SW -- STOMP --> SB
-    SC -- Lifecycle --> SS
-    SS -- Registry --> NP
-    SS -- Manages --> SE
-    SE -- Produces --> CX
-    CX -- Provides --> GL
-    GL -- Registers --> SB
-    SB -- Serializes --> WS[WorldSnapshot]
-    WS -- Broadcast --> SW
-    SW -- Updates --> ZS
-    SC -.-> GE
-```
-
-## Frontend Component Architecture (v1.76.0)
-
-```mermaid
-graph TD
-    App[App.tsx]
+    SimulationEngine ..> SimulationContext : builds
+    SimulationContext *-- SimulationWorld
+    SimulationContext *-- GameLoop
+    SimulationContext *-- EventBus
     
-    subgraph Layout
-        H[Header]
-    end
+    SimulationPlugin <|.. NaturePlugin
+    SimulationWorld <|-- NatureWorld
+    NatureWorld <|.. Island
     
-    subgraph SimulationComponents
-        SC[SimulationControls]
-        WC[WorldCanvas]
-        SM[SimulationMetrics]
-        SH[SnapshotHistoryPanel]
-        CD[CellDetails]
-        L[Legend]
-    end
+    Island *-- Cell
+    Cell ..|> SimulationNode
     
-    subgraph DataLayer
-        US[useSimulationStore - Snapshots]
-        TQ[TanStack Query - Server State]
-        SK[useSimulationSocket]
-        API[simulationApi]
-    end
-    
-    App --> H
-    App --> SC
-    App --> WC
-    App --> SM
-    App --> SH
-    App --> CD
-    App --> L
-    
-    SC --> TQ
-    SH --> TQ
-    SH --> US
-    WC --> US
-    TQ --> API
-    SK --> US
+    GameLoop o-- PhaseScheduler
+    PhaseScheduler o-- ParallelDispatcher
+    ParallelDispatcher o-- ExecutorService
+```
+
+### Pseudographic Class Diagram
+
+```text
++----------------------------------+          +---------------------------+
+|        SimulationEngine          |          |     SimulationPlugin<T>   |
++----------------------------------+          +---------------------------+
+| + build(plugin, config): Context |<---------| + createWorld(EventBus)   |
+| + start(plugin, config): Context |          | + registerTasks(...)      |
++----------------------------------+          | + onSimulationStarted()   |
+                |                             +---------------------------+
+                |                                           ^
+                v                                           |
++----------------------------------+          +---------------------------+
+|       SimulationContext<T>       |          |        NaturePlugin       |
++----------------------------------+          +---------------------------+
+| - world: SimulationWorld<T>      |          | - config: Configuration   |
+| - gameLoop: GameLoop<T>          |          | - domainContext: NatureDC |
+| - eventBus: EventBus             |          +---------------------------+
+| - executor: ExecutorService      |                        |
++----------------------------------+                        |
+                |                                           |
+                |                                           v
+                v                             +---------------------------+
++----------------------------------+          |           Island          |
+|       SimulationWorld<T>         |          +---------------------------+
++----------------------------------+          | - grid: Cell[][]          |
+| + tick(tickCount)                |<---------| - chunks: List<Chunk>     |
+| + createSnapshot(): Snapshot     |          | - registry: SpeciesReg.   |
+| + getParallelWorkUnits(): Coll   |          +---------------------------+
++----------------------------------+                        |
+                ^                                           |
+                |                                           v
++----------------------------------+          +---------------------------+
+|        SimulationNode<T>         |          |            Cell           |
++----------------------------------+          +---------------------------+
+| + addEntity(entity): boolean     |<---------| - entities: EntityCont.   |
+| + removeEntity(entity): boolean  |          | - x, y: int               |
++----------------------------------+          +---------------------------+
+```
+
+## Domain Model (island-nature)
+
+```text
++----------------------+      1..*      +----------------------+
+|        Island        |---------------->|         Cell         |
++----------------------+                +----------------------+
+| - width, height      |                | - x, y               |
+| - spatialIndex       |                | - terrain: Terrain   |
++----------------------+                +----------------------+
+           |                                       |
+           |                                       | 1
+           |                                       v
+           |                            +----------------------+
+           |                            |   EntityContainer    |
+           |                            +----------------------+
+           |                            | - animals: List<A>   |
+           |                            | - biomass: Map<S, B> |
+           |                            +----------------------+
+           |                                       |
+           |           +---------------------------+
+           |           |
+           v           v
++----------------------------------+
+|           Organism (T)           |
++----------------------------------+
+| - id: long                       |
+| - species: SpeciesKey            |
++----------------------------------+
+    ^                    ^
+    |                    |
++----------+       +-----------+
+|  Animal  |       |  Biomass  |
++----------+       +-----------+
+| - health |       | - amount  |
+| - age    |       +-----------+
++----------+
 ```

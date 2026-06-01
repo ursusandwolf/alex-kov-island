@@ -16,14 +16,14 @@ The system is now stable and optimized for mobile/battery-powered development. R
 - **Reactive UI**: Zustand + TanStack Query with Zoom/Pan Canvas.
 - **Persistence**: JPA/H2 file-based storage for simulation history.
 
-### 🧪 Recent Changes (May 27, 2026)
-- **Repo Rename**: Renamed repository to `alex-kov-island`.
-- **Fix**: Added missing `PopulationPoint` interface to `simulation.ts`.
-- **Optimization**: Updated `application.yml` with low-power presets (10x10, 2 threads).
-- **Tooling**: Verified background process management and database lock recovery.
-- **Docs**: Updated CHANGELOG, DOCUMENTATION, and UML to reflect v1.76.0 state.
+### 🧪 Recent Changes (June 1, 2026)
+- **Code Review**: Conducted deep dive into Engine and Nature core.
+- **UML**: Generated comprehensive pseudographic class diagrams in `docs/UML.md`.
+- **Optimization Strategy**: Identified `Optional` allocations in `Island` hot paths as next refactoring target.
+- **Docs**: Synchronized CHANGELOG, DOCUMENTATION, and UML.
 
 ### 📝 Next Steps
+- [ ] Refactor `Island.getNode` and `Island.getCell` to avoid `Optional` (Zero-GC effort).
 - [ ] Implement global temperature and moisture cycles (Climate System Phase 2).
 - [ ] Refine "Sense" logic to include seeking water and mating partners.
 - [ ] Expand SimCity benchmarks to cover high-density scenarios.
